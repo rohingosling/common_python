@@ -1,9 +1,13 @@
 # Import libraries.
 
 import pandas as pd
+import random
 
 from sklearn.feature_selection import RFE
 from sklearn.linear_model      import LogisticRegression
+from sklearn.linear_model      import RandomizedLogisticRegression
+from sklearn.metrics           import log_loss
+from sklearn.cross_validation  import KFold
 
 # Constants
 
@@ -11,11 +15,6 @@ C_NUMERAI = "[NUMERAI]: "
 
 # Start program
 
-print ("" )
-print ( "| Numerai Model" )
-print ( "| Cersion 1.0" )
-print ( "| 2016-08-31" )
-print ( "| Rohin Gosling" )
 print ( "|" )
 
 # Initialize file names.
@@ -39,21 +38,29 @@ y_train = train.target.values
 x_train = train.drop ( 'target', axis = 1 )
 x_test  = test.drop  ( 't_id',   axis = 1 )
 
+# TRain model.
 
 print ( C_NUMERAI + "Training model..." )
 
-# create the RFE model and select 3 attributes
+for count in range (0,2):
+    
+    print ( C_NUMERAI + "Training model (" + str ( count ) + ") ", end="" )     
+    
+    model = LogisticRegression (random_state = 23)
+    rfe   = RFE ( model, 7 )
+    rfe   = rfe.fit ( x_train, y_train )
+    
+    y_true = y_train
+    y_pred = rfe.predict_proba ( x_train )
 
-model = LogisticRegression ( verbose = 2 )
-
-# create the RFE model and select 3 attributes
-
-rfe = RFE ( model, 3 )
-rfe = rfe.fit ( x_train, y_train )
+    training_score    = rfe.score ( x_train, y_train ) * 100
+    traninig_log_loss = log_loss ( y_true, y_pred )
+    print ( "- Training Score: " + "{0:.2f}%".format ( training_score ), end=""  )
+    print ( ", Logloss: " + "{0:.5f}".format ( traninig_log_loss ) )
+    
 
 # Execute model.
 
-print ( "" )
 print ( C_NUMERAI + "Predicting results..." )
 
 p = rfe.predict_proba ( x_test )
@@ -69,8 +76,5 @@ test.to_csv ( output_file, columns = ( 't_id', 'probability' ), index = None )
 
 # Analysis report
 
-print ( C_NUMERAI + "Reporting...\n" )
-
-# summarize the selection of the attributes
-
-print ( "RFE Ranking: " + str ( rfe.ranking_ ) )
+print ( C_NUMERAI + "Reporting..." )
+print ( C_NUMERAI + "RFE Ranking: " + str ( rfe.ranking_ ) )
