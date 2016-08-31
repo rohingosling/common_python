@@ -3,7 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "framework", "framework\framework.pyproj", "{032B76E1-33A8-4DDA-B2B4-0BD37B2BFDDC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "framework", "framework", "{2ECEB82A-F15A-4F98-89D7-37B2BE7AEAC4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "application", "application", "{05792677-26DA-47FE-A59A-4E7A3D631D59}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "numerai", "numerai", "{2ED2ABF4-3849-49AC-9503-DE89ADDB3513}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{70153E23-8608-4CD4-AA32-84730C3A679E}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "numerai_1", "application\numerai\numerai_1\numerai_1.pyproj", "{A7F6CB1F-986A-47B9-91CE-49A33E3DD9E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +19,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{032B76E1-33A8-4DDA-B2B4-0BD37B2BFDDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{032B76E1-33A8-4DDA-B2B4-0BD37B2BFDDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7F6CB1F-986A-47B9-91CE-49A33E3DD9E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7F6CB1F-986A-47B9-91CE-49A33E3DD9E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2ED2ABF4-3849-49AC-9503-DE89ADDB3513} = {05792677-26DA-47FE-A59A-4E7A3D631D59}
+		{70153E23-8608-4CD4-AA32-84730C3A679E} = {2ED2ABF4-3849-49AC-9503-DE89ADDB3513}
+		{A7F6CB1F-986A-47B9-91CE-49A33E3DD9E0} = {2ED2ABF4-3849-49AC-9503-DE89ADDB3513}
 	EndGlobalSection
 EndGlobal
