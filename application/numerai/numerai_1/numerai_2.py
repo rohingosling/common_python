@@ -1,73 +1,115 @@
+#-----------------------------------------------------------------------------
 # Import libraries.
+#-----------------------------------------------------------------------------
 
 import pandas as pd
+import os
 
-from sklearn                   import metrics
-from sklearn.feature_selection import RFE
-from sklearn.linear_model      import LogisticRegression
-from sklearn.svm               import SVC
-from sklearn.decomposition     import PCA
+from sklearn.linear_model     import LogisticRegression
+from sklearn.metrics          import log_loss
 
-# constants
+
+#-----------------------------------------------------------------------------
+# Constants
+#-----------------------------------------------------------------------------
 
 C_NUMERAI = "[NUMERAI]: "
 
-# Start program
 
-print ( "\n" + C_NUMERAI + "Numerai (version 1.0)\n" )
+#-----------------------------------------------------------------------------
+# Functions.
+#-----------------------------------------------------------------------------
+
+# Console logging functions.
+
+def log ( message ):
+    print ( C_NUMERAI + message )
+    
+def new_line():
+    print ( "" )
+
+
+#-----------------------------------------------------------------------------
+# Initialize Program
+#-----------------------------------------------------------------------------
+
+new_line ()
+log ( "PROGRAM: " + os.path.basename(__file__) )
+log ( "Initializing." )
 
 # Initialize file names.
 
-train_file  = '../data/numerai_training_data.csv'
-test_file   = '../data/numerai_tournament_data.csv'
-output_file = '../data/predictions.csv'
+file_path        = "../data/"
+file_training    = file_path + "numerai_training_data.csv"
+file_application = file_path + "numerai_tournament_data.csv"
+file_prediction  = file_path + "predictions.csv"
 
 
-print ( C_NUMERAI + "Loading data..." )
-
+#-----------------------------------------------------------------------------
 # Load training data.
+#-----------------------------------------------------------------------------
 
-train = pd.read_csv ( train_file )
-test  = pd.read_csv ( test_file )
+log ( "Loading data." )
 
+data_training    = pd.read_csv ( file_training )
+data_application = pd.read_csv ( file_application )
 
 # Prepare data for training.
 
-y_train = train.target.values
-x_train = train.drop ( 'target', axis = 1 )
-x_test  = test.drop  ( 't_id',   axis = 1 )
+y_train       = data_training.target.values
+x_train       = data_training.drop    ( 'target', axis = 1 )
+x_application = data_application.drop ( 't_id',   axis = 1 )
 
+
+#-----------------------------------------------------------------------------
+# Train model.
+#-----------------------------------------------------------------------------
+
+log ( "Training model." )
 
 # Train model.
 
-print ( C_NUMERAI + "Training model..." )
-
-pca = PCA ( n_components = 2 )
-pca.fit ( x_train )
-xt_train = pca.transform ( x_train )
-xt_test  = pca.transform ( x_test )
-
 model = LogisticRegression ()
-model.fit ( xt_train, y_train )
+model.fit ( x_train, y_train )
 
-# Execute model.
+# Test model and calculate log loss.
 
-print ( C_NUMERAI + "Predicting results..." )
+y_true           = y_train
+y_pred           = model.predict_proba ( x_train )
+log_loss_traning = log_loss ( y_true, y_pred )
 
-p = model.predict_proba ( xt_test )
 
+#-----------------------------------------------------------------------------
+# Apply model.
+#-----------------------------------------------------------------------------
+
+log ( "Predicting results." )
+
+y_application = model.predict_proba ( x_application )
+
+
+#-----------------------------------------------------------------------------
 # Save results.
+#-----------------------------------------------------------------------------
 
-print ( C_NUMERAI + "Saving results..." )
+log ( "Saving results." )
 
-test [ 'probability' ] = p [ :, 1 ]
+data_application [ 'probability' ] = y_application [ :, 1 ]
 
-test.to_csv ( output_file, columns = ( 't_id', 'probability' ), index = None )
+data_application.to_csv (
+    file_prediction, 
+    columns = ( 't_id', 'probability' ), 
+    index   = None
+)
 
-# Analysis report
 
-print ( C_NUMERAI + "Reporting..." )
+#-----------------------------------------------------------------------------
+# Analysis and Reporting.
+#-----------------------------------------------------------------------------
 
-# summarize the selection of the attributes
+log ( "Reporting." )
+log ( "log_loss = " + "{0:.5f}".format ( log_loss_traning ) )
+log ( "- MODEL:\n\n" + str ( model ) )
 
-print ( C_NUMERAI + "Model: \n" + str ( model ) + "\n" )
+
+

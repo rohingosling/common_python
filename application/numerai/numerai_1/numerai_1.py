@@ -1,67 +1,106 @@
+#-----------------------------------------------------------------------------
 # Import libraries.
+#-----------------------------------------------------------------------------
 
 import pandas as pd
+import os
 
-from sklearn.feature_selection import RFE
-from sklearn.linear_model      import LogisticRegression
+from sklearn.linear_model import LogisticRegression
 
-# Start program
 
-print ( "\nNumerai (version 1.0)\n" )
+#-----------------------------------------------------------------------------
+# Constants
+#-----------------------------------------------------------------------------
+
+C_NUMERAI = "[NUMERAI]: "
+
+
+#-----------------------------------------------------------------------------
+# Functions.
+#-----------------------------------------------------------------------------
+
+# Console logging functions.
+
+def log ( message ):
+    print ( C_NUMERAI + message )
+    
+def new_line():
+    print ( "" )
+
+
+#-----------------------------------------------------------------------------
+# Initialize Program
+#-----------------------------------------------------------------------------
+
+new_line ()
+log ( "PROGRAM: " + os.path.basename(__file__) )
+log ( "Initializing." )
 
 # Initialize file names.
 
-train_file  = '../data/numerai_training_data.csv'
-test_file   = '../data/numerai_tournament_data.csv'
-output_file = '../data/predictions.csv'
+file_path        = "../data/"
+file_training    = file_path + "numerai_training_data.csv"
+file_application = file_path + "numerai_tournament_data.csv"
+file_prediction  = file_path + "predictions.csv"
 
 
-print ( "Loading data..." )
-
+#-----------------------------------------------------------------------------
 # Load training data.
+#-----------------------------------------------------------------------------
 
-train = pd.read_csv ( train_file )
-test  = pd.read_csv ( test_file )
+log ( "Loading data." )
+
+data_training    = pd.read_csv ( file_training )
+data_application = pd.read_csv ( file_application )
 
 
 # Prepare data for training.
 
-y_train = train.target.values
-x_train = train.drop ( 'target', axis = 1 )
-x_test  = test.drop  ( 't_id',   axis = 1 )
+y_train       = data_training.target.values
+x_train       = data_training.drop    ( 'target', axis = 1 )
+x_application = data_application.drop ( 't_id',   axis = 1 )
 
 
-print ( "Training model..." )
+#-----------------------------------------------------------------------------
+# Train model.
+#-----------------------------------------------------------------------------
 
-# create the RFE model and select 3 attributes
+log ( "Training model." )
 
-model = LogisticRegression()
-
-# create the RFE model and select 3 attributes
-
-rfe = RFE ( model, 7 )
-rfe = rfe.fit ( x_train, y_train )
-
-# Execute model.
-
-print ( "Predicting results..." )
-
-p = rfe.predict_proba ( x_test )
+model = LogisticRegression ()
+model.fit ( x_train, y_train )
 
 
+#-----------------------------------------------------------------------------
+# Apply model.
+#-----------------------------------------------------------------------------
+
+log ( "Predicting results." )
+
+y_application = model.predict_proba ( x_application )
+
+
+#-----------------------------------------------------------------------------
 # Save results.
+#-----------------------------------------------------------------------------
 
-print ( "Saving results..." )
+log ( "Saving results." )
 
-test [ 'probability' ] = p [ :, 1 ]
+data_application [ 'probability' ] = y_application [ :, 1 ]
 
-test.to_csv ( output_file, columns = ( 't_id', 'probability' ), index = None )
+data_application.to_csv (
+    file_prediction, 
+    columns = ( 't_id', 'probability' ), 
+    index   = None
+)
 
-# Analysis report
 
-print ( "Reporting...\n" )
+#-----------------------------------------------------------------------------
+# Analysis and Reporting.
+#-----------------------------------------------------------------------------
 
-# summarize the selection of the attributes
+log ( "Reporting." )
+log ( "MODEL:\n\n" + str ( model ) )
 
-print ( "RFE Support: " + str ( rfe.support_ ) )
-print ( "RFE Ranking: " + str ( rfe.ranking_ ) )
+
+
