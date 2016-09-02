@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 # Import libraries.
 #-----------------------------------------------------------------------------
-
+    
 import random
 import os
 
@@ -11,7 +11,6 @@ import numpy             as np
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics      import log_loss
-from sklearn.ensemble     import AdaBoostRegressor
 from sklearn.ensemble     import GradientBoostingRegressor
 
 
@@ -19,7 +18,21 @@ from sklearn.ensemble     import GradientBoostingRegressor
 # Constants
 #-----------------------------------------------------------------------------
 
+# Strings.
+
 C_NUMERAI = "[NUMERAI]: "
+
+# Training settings.
+
+C_TRAINING_MODEL_COUNT = 4
+
+# Algorythms: GradientBoostingRegressor
+
+C_GBR_LEARNING_RATE = 0.01      # Best: 0.01
+C_GBR_MAX_FEATURES  = 21        # Best: 14
+C_GBR_N_ESTIMATORS  = 256       # Best: 256
+C_GBR_MAX_DEPTH     = 5         # Best: 5
+C_GBR_WARM_START    = False     # Best: False
 
 
 #-----------------------------------------------------------------------------
@@ -45,12 +58,12 @@ def train_model ( x_train, y_train ):
                 #loss          = "quantile",
                 #loss          = "huber",
                 #alpha         = 0.01,
-                learning_rate = 0.01,
-                max_features  = 14,
-                n_estimators  = 256,
-                max_depth     = 5,
+                learning_rate = C_GBR_LEARNING_RATE,
+                max_features  = C_GBR_MAX_FEATURES,
+                n_estimators  = C_GBR_N_ESTIMATORS,
+                max_depth     = C_GBR_MAX_DEPTH,
                 random_state  = random.randint ( 0, 1000 ),
-                warm_start    = False
+                warm_start    = C_GBR_WARM_START
             )
             
     model.fit ( x_train, y_train )
@@ -80,7 +93,7 @@ def train_best_model ( x_train, y_train, count ):
         
         if log_loss_traning < log_loss_training_best:
             log_loss_training_best = log_loss_traning
-            model_best = model
+            model_best             = model
         
         # Report results.
     
@@ -141,7 +154,7 @@ log ( "Training model." )
 
 # Train models.
 
-model = train_best_model ( x_train, y_train, 4 )
+model = train_best_model ( x_train, y_train, C_TRAINING_MODEL_COUNT )
 
 #-----------------------------------------------------------------------------
 # Apply model.
