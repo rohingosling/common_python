@@ -36,14 +36,14 @@ FILE_PREDICTION  = FILE_PATH + "predictions.csv"
 
 # Training settings.
 
-C_TRAINING_MODEL_COUNT = 1
+C_TRAINING_MODEL_COUNT = 4
 
 # Algorythms: GradientBoostingRegressor
 
-C_GBR_LEARNING_RATE = 0.01        # Best: 0.01
+C_GBR_LEARNING_RATE = 0.1        # Best: 0.01
 C_GBR_MAX_FEATURES  = 21           # Best: 14
-C_GBR_N_ESTIMATORS  = 256          # Best: 256
-C_GBR_MAX_DEPTH     = 8            # Best: 5
+C_GBR_N_ESTIMATORS  = 1024          # Best: 256
+C_GBR_MAX_DEPTH     = 3            # Best: 5
 C_GBR_WARM_START    = False        # Best: False
 #C_GBR_LOSS          = "quantile"
 C_GBR_LOSS          = "huber"
@@ -123,6 +123,12 @@ def main ():
     console_report ( model, x_train, y_train)
     
     plot_data ( model )
+    
+    #-----------------------------------------------------------------------------
+    # Shutdown.
+    #-----------------------------------------------------------------------------
+    
+    log ( "End." )
     
 
 #-----------------------------------------------------------------------------
@@ -285,7 +291,16 @@ def console_report ( model, x_train, y_train ):
     log ( "- Best log loss = " + "{0:.5f}".format ( best_log_loss ) )
     
     if C_REPORT_MODEL_PARAMETERS_ENABLED:
-        log ( "- MODEL:\n\n" + str ( model ) )
+        
+        log ( "- MODEL:" )
+        
+        model_parameters = model.get_params()
+        
+        for key in model_parameters:
+            
+            log_str  = "%24s = " % key
+            log_str += str ( model_parameters [ key ] )
+            log ( log_str )
 
 
 #-----------------------------------------------------------------------------

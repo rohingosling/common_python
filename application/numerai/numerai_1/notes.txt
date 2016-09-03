@@ -1,0 +1,10 @@
+Originality:
+
+    GradientBoostingRegressor
+        C_GBR_LEARNING_RATE = 0.1
+        C_GBR_MAX_FEATURES  = 21
+        C_GBR_N_ESTIMATORS  = 256
+        C_GBR_MAX_DEPTH     = 3
+        C_GBR_WARM_START    = False
+
+Low log loss:
