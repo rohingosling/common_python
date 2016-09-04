@@ -4,6 +4,8 @@
 
 import random
 import os
+#import time
+import datetime
 
 import pandas            as pd
 import matplotlib.pyplot as plt
@@ -16,10 +18,6 @@ from sklearn.ensemble     import GradientBoostingRegressor
 #/////////////////////////////////////////////////////////////////////////////
 # Constants
 #/////////////////////////////////////////////////////////////////////////////
-
-# Strings.
-
-C_NUMERAI = "[NUMERAI]: "
 
 # CSV file column names.
 
@@ -40,15 +38,14 @@ C_TRAINING_MODEL_COUNT = 4
 
 # Algorythms: GradientBoostingRegressor
 
-C_GBR_LEARNING_RATE = 0.1        # Best: 0.01
-C_GBR_MAX_FEATURES  = 21           # Best: 14
-C_GBR_N_ESTIMATORS  = 1024          # Best: 256
-C_GBR_MAX_DEPTH     = 3            # Best: 5
-C_GBR_WARM_START    = False        # Best: False
-#C_GBR_LOSS          = "quantile"
-C_GBR_LOSS          = "huber"
-C_GBR_ALPHA         = 0.1
-C_GBR_VERBOSE       = 0
+C_GBR_MAX_FEATURES      = 9
+C_GBR_MAX_DEPTH         = 3
+C_GBR_N_ESTIMATORS      = 4096
+C_GBR_LEARNING_RATE     = 0.001
+C_GBR_WARM_START        = False
+C_GBR_SUBSAMPLE         = 1.0
+C_GBR_MIN_SAMPLES_SPLIT = 2
+C_GBR_VERBOSE           = 0
 
 # Reporting settings.
 
@@ -65,9 +62,11 @@ C_REPORT_FIGURE_FEATURE_RANK_ENABLED = True
 #-----------------------------------------------------------------------------
 
 def main ():
-    
+
+    C_INDENT = "  "
+
     new_line ()
-    log ( "PROGRAM: " + os.path.basename(__file__) )
+    log ( "PROGRAM: " + os.path.basename(__file__) )    
     
     #-------------------------------------------------------------------------
     # Train model.
@@ -76,15 +75,15 @@ def main ():
     # Load training data.
     
     log ( "TRAINING:" )
-    log ( "- Loading training data: " + " \"" + FILE_TRAINING + "\""  )    
+    log ( C_INDENT + "Loading training data: " + " \"" + FILE_TRAINING + "\""  )    
     
     x_train, y_train = load_training_data ( FILE_TRAINING )
     
     # Train model on training data.
     
-    log ( "- Training model." )
+    log ( C_INDENT + "Training model." )
     
-    model = train_best_model ( x_train, y_train, C_TRAINING_MODEL_COUNT )
+    model, training_time = train_best_model ( x_train, y_train, C_TRAINING_MODEL_COUNT )
     
     
     #-------------------------------------------------------------------------
@@ -94,13 +93,13 @@ def main ():
     # Load application data.
     
     log ( "APPLICATION:" )
-    log ( "- Loading application data: " + " \"" + FILE_APPLICATION + "\""  )    
+    log ( C_INDENT + "Loading application data: " + " \"" + FILE_APPLICATION + "\""  )    
     
     x_application, data_application = load_application_data ( FILE_APPLICATION )
     
     # Apply model to application data.
     
-    log ( "- Predicting results." )   
+    log ( C_INDENT + "Predicting results." )   
     
     y_application = model.predict ( x_application )
     
@@ -109,42 +108,61 @@ def main ():
     # Save results.
     #-------------------------------------------------------------------------
     
-    log ( "- Saving results: " + " \"" + FILE_PREDICTION + "\""  )
+    log ( C_INDENT + "Saving results: " + " \"" + FILE_PREDICTION + "\""  )
     
     save_application_results ( data_application, y_application )
     
     
-    #-----------------------------------------------------------------------------
+    #-------------------------------------------------------------------------
     # Analysis and Reporting.
-    #-----------------------------------------------------------------------------
+    #-------------------------------------------------------------------------
     
     log ( "REPORTING:" )
     
-    console_report ( model, x_train, y_train)
+    console_report ( model, x_train, y_train, training_time )
     
     plot_data ( model )
+   
+
+    #-------------------------------------------------------------------------
+    # Analysis and Reporting.
+    #-------------------------------------------------------------------------
     
-    #-----------------------------------------------------------------------------
-    # Shutdown.
-    #-----------------------------------------------------------------------------
-    
+    new_line ()
     log ( "End." )
-    
 
 #-----------------------------------------------------------------------------
 # Console logging functions.
 #-----------------------------------------------------------------------------
 
 def log ( message, newline = True ):
+    
+    # Compile time string.
+    
+    ts = datetime.datetime.now().strftime ( "%H:%M:%S" )    
+
+    # Print message.    
+    
     if newline:
-        print ( C_NUMERAI + message )
+        print ( "[" + ts + "]: " + message )
     else:
-        print ( C_NUMERAI + message, end="" )
+        print ( "[" + ts + "]: " + message, end="" )
 
 #-----------------------------------------------------------------------------
 
 def new_line():
     print ( "" )
+
+#-----------------------------------------------------------------------------    
+
+def time_to_string ( time ):        
+    
+        ms_str   = str ( time )[-7:]
+        ms       = round ( float (ms_str), 3 )
+        ms_str   = "{0:.3f}".format ( ms )
+        time_str = str ( time )[:-6] + ms_str[2:]
+
+        return time_str
 
 
 #-----------------------------------------------------------------------------
@@ -209,16 +227,16 @@ def save_application_results ( data_application, y_application ):
 
 def train_model ( x_train, y_train ):
     
-    model = GradientBoostingRegressor (                
-                #loss          = C_GBR_LOSS,
-                #alpha         = C_GBR_ALPHA,
-                learning_rate = C_GBR_LEARNING_RATE,
-                max_features  = C_GBR_MAX_FEATURES,
-                n_estimators  = C_GBR_N_ESTIMATORS,
-                max_depth     = C_GBR_MAX_DEPTH,
-                random_state  = random.randint ( 0, 1000 ),
-                warm_start    = C_GBR_WARM_START,
-                verbose       = C_GBR_VERBOSE
+    model = GradientBoostingRegressor (                                                
+                max_features      = C_GBR_MAX_FEATURES,
+                #min_samples_split = C_GBR_MIN_SAMPLES_SPLIT,
+                n_estimators      = C_GBR_N_ESTIMATORS,
+                max_depth         = C_GBR_MAX_DEPTH,
+                learning_rate     = C_GBR_LEARNING_RATE,
+                #subsample         = C_GBR_SUBSAMPLE,
+                random_state      = random.randint ( 0, 1000 ),
+                warm_start        = C_GBR_WARM_START,
+                verbose           = C_GBR_VERBOSE
             )
             
     model.fit ( x_train, y_train )
@@ -232,12 +250,21 @@ def train_model ( x_train, y_train ):
 
 def train_best_model ( x_train, y_train, count ):
     
+    C_INDENT = "    "    
+    
     training_cycle_count   = count
     log_loss_training_best = 1.0
+    totaL_training_time    = datetime.timedelta ( 0 )
+    
+    log ( C_INDENT + "MODEL_INDEX\t   LOG_LOSS\t   TRAINING_TIME" )    
     
     for training_cycle_index in range ( 0, training_cycle_count ):
         
-        log ( "- - Model " + str ( training_cycle_index+1 ) + "/" + str ( training_cycle_count ) + ": ", newline = False )    
+        log ( C_INDENT + str ( training_cycle_index+1 ) + "/" + str ( training_cycle_count ), newline = False )    
+        
+        # Start clock
+        
+        clock_start = datetime.datetime.now()        
         
         # Train model.
         
@@ -246,22 +273,32 @@ def train_best_model ( x_train, y_train, count ):
         # Test model and compute log loss.
         
         log_loss_traning = compute_log_loss ( model, x_train, y_train )
-        
+                
         # Update best model.
         
         if log_loss_traning < log_loss_training_best:
             log_loss_training_best = log_loss_traning
             model_best             = model
+            
+        # stop clock, and compute elapsed time.
+            
+        clock_stop           = datetime.datetime.now() 
+        elapsed_time         = clock_stop - clock_start
+        totaL_training_time += elapsed_time       
         
         # Report results.
+                
+        s =  "\t\t" + "{0:.5f}".format ( log_loss_traning )        
+        s += "\t\t" + time_to_string ( elapsed_time )
     
-        print ( "log_loss = " + "{0:.5f}".format ( log_loss_traning ) )
+        print ( s )
         
     # Update best model.
     
-    model = model_best
+    if (log_loss_traning < 1.0 ):
+        model = model_best    
     
-    return model
+    return model, totaL_training_time
 
 
 #-----------------------------------------------------------------------------
@@ -280,7 +317,9 @@ def compute_log_loss ( model, x_train, y_train ):
 # Plot data.
 #-----------------------------------------------------------------------------
 
-def console_report ( model, x_train, y_train ):
+def console_report ( model, x_train, y_train, training_time ):
+    
+    C_INDENT = "  "
     
     # Collect data to report on.
     
@@ -288,11 +327,12 @@ def console_report ( model, x_train, y_train ):
 
     # Print reporting and analysis data.
     
-    log ( "- Best log loss = " + "{0:.5f}".format ( best_log_loss ) )
+    log ( C_INDENT + "Best log loss = " + "{0:.5f}".format ( best_log_loss ) )
+    log ( C_INDENT + "Training time = " + time_to_string ( training_time ) )
     
     if C_REPORT_MODEL_PARAMETERS_ENABLED:
         
-        log ( "- MODEL:" )
+        log ( C_INDENT + "MODEL:\n" )        
         
         model_parameters = model.get_params()
         
@@ -300,7 +340,7 @@ def console_report ( model, x_train, y_train ):
             
             log_str  = "%24s = " % key
             log_str += str ( model_parameters [ key ] )
-            log ( log_str )
+            print ( log_str )    
 
 
 #-----------------------------------------------------------------------------
