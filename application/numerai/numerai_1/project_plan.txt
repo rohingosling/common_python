@@ -9,3 +9,8 @@ Numerai Model - Project Plan - 1.0
    7. Grid search for algorythm paramter optimisation analysis of xgboost parameters.
    8. Implement autoamted parameter optimization using simulated annealing.
    9. Push for sub 0.69050 logloss on both public and private LB's.
+  10. PCA pre-processing.
+  11. Historical training and validation data managment.
+  11. K-Means clustering.
+  
+  12. Begin Forex implementation.
