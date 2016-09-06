@@ -39,14 +39,14 @@ class Constant ( object ):
     
     # Training settings.
     
-    TRAINING_MODEL_COUNT = 8
+    TRAINING_MODEL_COUNT = 4
     
     # Algorithms: GradientBoostingRegressor
     
-    GBR_MAX_FEATURES      = 7
-    GBR_MAX_DEPTH         = 3
-    GBR_N_ESTIMATORS      = 8
-    GBR_LEARNING_RATE     = 0.01
+    GBR_MAX_FEATURES      = 9
+    GBR_MAX_DEPTH         = 128
+    GBR_N_ESTIMATORS      = 6
+    GBR_LEARNING_RATE     = 0.001
     GBR_WARM_START        = False
     GBR_SUBSAMPLE         = 1.0
     GBR_MIN_SAMPLES_SPLIT = 2
