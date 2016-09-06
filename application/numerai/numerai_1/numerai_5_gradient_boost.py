@@ -2,6 +2,8 @@
 # Import libraries.
 #/////////////////////////////////////////////////////////////////////////////
 
+# Python imports.
+
 import random
 import os
 import datetime
@@ -16,54 +18,16 @@ from sklearn.metrics  import log_loss
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics  import accuracy_score
 
+# Application imports.
+
+from numerai_constants import Constant
+
 
 #/////////////////////////////////////////////////////////////////////////////
 # Constants
 #/////////////////////////////////////////////////////////////////////////////
 
-# CSV file column names.
-
-C_CSV_TRAINING_TARGET         = "target"
-C_CSV_APPLICATION_ID          = "t_id"
-C_CSV_APPLICATION_PROBABILITY = "probability"
-
-# Data file path and file names.
-
-C_FILE_PATH        = "../data/"
-C_FILE_TRAINING    = C_FILE_PATH + "numerai_training_data.csv"
-C_FILE_APPLICATION = C_FILE_PATH + "numerai_tournament_data.csv"
-C_FILE_PREDICTION  = C_FILE_PATH + "predictions.csv"
-
-# Program file name.
-
-C_PROGRAM_FILE_NAME = os.path.basename ( __file__ )  
-
-# Log file path and file name.
-
-C_LOG_FILE_PATH = ""
-C_LOG_FILE_NAME = C_PROGRAM_FILE_NAME [ :-2 ] + "log"
-
-# Training settings.
-
-C_TRAINING_MODEL_COUNT = 8
-
-# Algorythms: GradientBoostingRegressor
-
-C_GBR_MAX_FEATURES      = 7
-C_GBR_MAX_DEPTH         = 3
-C_GBR_N_ESTIMATORS      = 3000
-C_GBR_LEARNING_RATE     = 0.001
-C_GBR_WARM_START        = False
-C_GBR_SUBSAMPLE         = 1.0
-C_GBR_MIN_SAMPLES_SPLIT = 2
-C_GBR_VERBOSE           = 0
-
-
-# Reporting settings.
-
-C_REPORT_MODEL_PARAMETERS_ENABLED    = True
-C_REPORT_FIGURE_FEATURE_RANK_ENABLED = True
-C_LOG_FILE_ENABLED                   = True
+pass
 
 #/////////////////////////////////////////////////////////////////////////////
 # Data structures
@@ -74,6 +38,7 @@ C_LOG_FILE_ENABLED                   = True
 class Model ( object ):
     
     def __init__ ( self ):
+    
         self.algorythm     = GradientBoostingRegressor ()
         self.log_loss      = 1.0
         self.accuracy      = 1.0
@@ -89,10 +54,8 @@ class Model ( object ):
 
 def main ():
 
-    C_INDENT = "  "
-
     new_line ()
-    log ( "PROGRAM: " + C_PROGRAM_FILE_NAME )    
+    log ( "PROGRAM: " + Constant.PROGRAM_FILE_NAME )    
     
     #-------------------------------------------------------------------------
     # Train model.
@@ -101,15 +64,15 @@ def main ():
     # Load training data.
     
     log ( "TRAINING:" )
-    log ( C_INDENT + "Loading training data: " + " \"" + C_FILE_TRAINING + "\""  )    
+    log ( Constant.INDENT + "Loading training data: " + " \"" + Constant.DATA_FILE_TRAINING + "\""  )    
     
-    x_train, y_train = load_training_data ( C_FILE_TRAINING )
+    x_train, y_train = load_training_data ( Constant.DATA_FILE_TRAINING )
     
     # Train model on training data.
     
-    log ( C_INDENT + "Training " + str ( C_TRAINING_MODEL_COUNT ) + " model/s." )
+    log ( Constant.INDENT + "Training " + str ( Constant.TRAINING_MODEL_COUNT ) + " model/s." )
     
-    model = train_best_model ( x_train, y_train, C_TRAINING_MODEL_COUNT )
+    model = train_best_model ( x_train, y_train, Constant.TRAINING_MODEL_COUNT )
     
     
     #-------------------------------------------------------------------------
@@ -119,13 +82,13 @@ def main ():
     # Load application data.
     
     log ( "APPLICATION:" )
-    log ( C_INDENT + "Loading application data: " + " \"" + C_FILE_APPLICATION + "\""  )    
+    log ( Constant.INDENT + "Loading application data: " + " \"" + Constant.DATA_FILE_APPLICATION + "\""  )    
     
-    x_application, data_application = load_application_data ( C_FILE_APPLICATION )
+    x_application, data_application = load_application_data ( Constant.DATA_FILE_APPLICATION )
     
     # Apply model to application data.
     
-    log ( C_INDENT + "Predicting results." )   
+    log ( Constant.INDENT + "Predicting results." )   
     
     y_application = model.algorythm.predict ( x_application )
     
@@ -134,7 +97,7 @@ def main ():
     # Save results.
     #-------------------------------------------------------------------------
     
-    log ( C_INDENT + "Saving results: " + " \"" + C_FILE_PREDICTION + "\""  )
+    log ( Constant.INDENT + "Saving results: " + " \"" + Constant.DATA_FILE_PREDICTION + "\""  )
     
     save_application_results ( data_application, y_application )
     
@@ -195,17 +158,17 @@ def time_to_string ( time ):
 # Load training data.
 #-----------------------------------------------------------------------------
 
-def load_training_data ( FILE_TRAINING ):
+def load_training_data ( data_file_training ):
     
     # Load training data from file.
 
-    data_training = pd.read_csv ( FILE_TRAINING )
+    data_training = pd.read_csv ( data_file_training )
     
     # Prepare data for training. y_train = f ( x_train )
     # - Input vector = x_train
     # - Output vector = y_train
     
-    x_train = data_training.drop ( C_CSV_TRAINING_TARGET, axis = 1 )
+    x_train = data_training.drop ( Constant.CSV_TRAINING_TARGET, axis = 1 )
     y_train = data_training.target.values                           
     
     return x_train, y_train 
@@ -225,7 +188,7 @@ def load_application_data ( FILE_APPLICATION ):
     # - Input vector = x_application
     # - Output vector = y_application ...To be allocated after model execution.
     
-    x_application = data_application.drop ( C_CSV_APPLICATION_ID, axis = 1 ) 
+    x_application = data_application.drop ( Constant.CSV_APPLICATION_ID, axis = 1 ) 
     
     return x_application, data_application
 
@@ -236,14 +199,14 @@ def load_application_data ( FILE_APPLICATION ):
 
 def save_application_results ( data_application, y_application ):
 
-    data_application [ C_CSV_APPLICATION_PROBABILITY ] = y_application
-    #data_application [ C_CSV_APPLICATION_PROBABILITY ] = y_application [ :, 1 ]
+    data_application [ Constant.CSV_APPLICATION_PROBABILITY ] = y_application
+    #data_application [ Constant.CSV_APPLICATION_PROBABILITY ] = y_application [ :, 1 ]
     
     # Save the results to file.    
     
     data_application.to_csv (
-        C_FILE_PREDICTION, 
-        columns = ( C_CSV_APPLICATION_ID, C_CSV_APPLICATION_PROBABILITY ), 
+        Constant.DATA_FILE_PREDICTION, 
+        columns = ( Constant.CSV_APPLICATION_ID, Constant.CSV_APPLICATION_PROBABILITY ), 
         index   = None
     )
 
@@ -255,21 +218,21 @@ def train_new_model ( x_train, y_train ):
     
     # Local constants.
     
-    C_RANDOM_MIN = 0
-    C_RANDOM_MAX = 1000
+    Constant.RANDOM_MIN = 0
+    Constant.RANDOM_MAX = 1000
     
     # Initialize model.
     
     algorythm = GradientBoostingRegressor (                                                
-                max_features      = C_GBR_MAX_FEATURES,
-                #min_samples_split = C_GBR_MIN_SAMPLES_SPLIT,
-                n_estimators      = C_GBR_N_ESTIMATORS,
-                max_depth         = C_GBR_MAX_DEPTH,
-                learning_rate     = C_GBR_LEARNING_RATE,
-                #subsample         = C_GBR_SUBSAMPLE,
-                random_state      = random.randint ( C_RANDOM_MIN, C_RANDOM_MAX ),
-                warm_start        = C_GBR_WARM_START,
-                verbose           = C_GBR_VERBOSE
+                max_features      = Constant.GBR_MAX_FEATURES,
+                #min_samples_split = Constant.GBR_MIN_SAMPLES_SPLIT,
+                n_estimators      = Constant.GBR_N_ESTIMATORS,
+                max_depth         = Constant.GBR_MAX_DEPTH,
+                learning_rate     = Constant.GBR_LEARNING_RATE,
+                #subsample         = Constant.GBR_SUBSAMPLE,
+                random_state      = random.randint ( Constant.RANDOM_MIN, Constant.RANDOM_MAX ),
+                warm_start        = Constant.GBR_WARM_START,
+                verbose           = Constant.GBR_VERBOSE
             )
             
     # Start clock
@@ -308,14 +271,14 @@ def train_best_model ( x_train, y_train, count ):
     
     # Local constants.    
     
-    C_LOG_LOSS_MAX          = sys.maxsize
-    C_INDENT                = "    "
-    C_TABLE_HEADER          = "MODEL_INDEX\t   LOG_LOSS\t   ACCURACY\t   TRAINING_TIME"
+    Constant.LOG_LOSS_MAX          = sys.maxsize
+    Constant.INDENT                = "    "
+    Constant.TABLE_HEADER          = "MODEL_INDEX\t   LOG_LOSS\t   ACCURACY\t   TRAINING_TIME"
     
     # Local variables.
     
     model_best          = Model ()
-    model_best.log_loss = C_LOG_LOSS_MAX
+    model_best.log_loss = Constant.LOG_LOSS_MAX
     
     # Start clock
         
@@ -323,11 +286,11 @@ def train_best_model ( x_train, y_train, count ):
     
     # Begin training sequence.
                          
-    log ( C_INDENT + C_TABLE_HEADER )        
+    log ( Constant.INDENT + Constant.TABLE_HEADER )        
     
     for training_cycle in range ( 0, count ):
         
-        log ( C_INDENT + str ( training_cycle + 1 ) + "/" + str ( count ), newline = False )    
+        log ( Constant.INDENT + str ( training_cycle + 1 ) + "/" + str ( count ), newline = False )    
         
         # Train model.
         
@@ -394,7 +357,7 @@ def console_report ( input_model, x_train, y_train ):
     
     # Local constants.
     
-    C_INDENT = "  "
+    Constant.INDENT = "  "
     
     # Collect data to report on.
     
@@ -404,17 +367,17 @@ def console_report ( input_model, x_train, y_train ):
     training_time         = model.training_time    
     best_log_loss         = model.log_loss
     accuracy              = model.accuracy
-    average_training_time = training_time / C_TRAINING_MODEL_COUNT
+    average_training_time = training_time / Constant.TRAINING_MODEL_COUNT
 
     # Print reporting and analysis data.
     
-    log ( C_INDENT + "Best log loss = " + "{0:.5f}".format ( best_log_loss ) )
-    log ( C_INDENT + "Best accuracy = " + "{0:.1f}".format ( accuracy ) )
-    log ( C_INDENT + "Training time = " + time_to_string ( average_training_time ) )
+    log ( Constant.INDENT + "Best log loss = " + "{0:.5f}".format ( best_log_loss ) )
+    log ( Constant.INDENT + "Best accuracy = " + "{0:.1f}".format ( accuracy ) )
+    log ( Constant.INDENT + "Training time = " + time_to_string ( average_training_time ) )
     
-    if C_REPORT_MODEL_PARAMETERS_ENABLED:
+    if Constant.REPORT_MODEL_PARAMETERS_ENABLED:
         
-        log ( C_INDENT + "MODEL:\n" )        
+        log ( Constant.INDENT + "MODEL:\n" )        
         
         model_parameters = model.algorythm.get_params()
         
@@ -426,9 +389,9 @@ def console_report ( input_model, x_train, y_train ):
     
     # Write results to log file.
         
-    if C_LOG_FILE_ENABLED:
+    if Constant.LOG_FILE_ENABLED:
         
-        write_model_to_log_file ( model, C_LOG_FILE_NAME + C_LOG_FILE_PATH )
+        write_model_to_log_file ( model, Constant.LOG_FILE_NAME + Constant.LOG_FILE_PATH )
         
 
 #-----------------------------------------------------------------------------
@@ -467,7 +430,7 @@ def plot_data ( input_model ):
     model = Model ()
     model = copy.copy ( input_model )
     
-    if C_REPORT_FIGURE_FEATURE_RANK_ENABLED:
+    if Constant.REPORT_FIGURE_FEATURE_RANK_ENABLED:
         
         # Collect data to plot.
         
@@ -499,10 +462,4 @@ def plot_data ( input_model ):
 #/////////////////////////////////////////////////////////////////////////////
 
 main()
-
-
-
-
-
-
 
