@@ -49,7 +49,7 @@ C_TRAINING_MODEL_COUNT = 8
 
 # Algorythms: GradientBoostingRegressor
 
-C_GBR_MAX_FEATURES      = 7
+C_GBR_MAX_FEATURES      = 9
 C_GBR_MAX_DEPTH         = 3
 C_GBR_N_ESTIMATORS      = 3000
 C_GBR_LEARNING_RATE     = 0.001
@@ -341,7 +341,7 @@ def train_best_model ( x_train, y_train, count ):
         # Report this training cycles' results.
                 
         s =  "\t\t" + "{0:.5f}".format ( model.log_loss )        
-        s += "\t\t"   + "{0:.3f}".format ( model.accuracy ) + " %"        
+        s += "\t\t" + "{0:.1f}".format ( model.accuracy ) + " %"        
         s += "\t\t" + time_to_string   ( model.training_time )    
         print ( s )
     
