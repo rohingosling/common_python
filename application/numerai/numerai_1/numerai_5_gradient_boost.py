@@ -39,10 +39,10 @@ class Model ( object ):
     
     def __init__ ( self ):
     
-        self.algorythm     = GradientBoostingRegressor ()
+        self.algorithm     = GradientBoostingRegressor ()
         self.log_loss      = 1.0
         self.accuracy      = 1.0
-        self.training_time = datetime.timedelta ()
+        self.training_time = datetime.timedelta ( 0 )
 
 #/////////////////////////////////////////////////////////////////////////////
 # Functions.
@@ -89,8 +89,8 @@ def main ():
     # Apply model to application data.
     
     log ( Constant.INDENT + "Predicting results." )   
-    
-    y_application = model.algorythm.predict ( x_application )
+                         
+    y_application = model.algorithm.predict ( x_application )
     
     
     #-------------------------------------------------------------------------
@@ -114,7 +114,7 @@ def main ():
    
 
     #-------------------------------------------------------------------------
-    # Analysis and Reporting.
+    # Shut-down program.
     #-------------------------------------------------------------------------
     
     new_line ()
@@ -223,17 +223,19 @@ def train_new_model ( x_train, y_train ):
     
     # Initialize model.
     
-    algorythm = GradientBoostingRegressor (                                                
-                max_features      = Constant.GBR_MAX_FEATURES,
-                #min_samples_split = Constant.GBR_MIN_SAMPLES_SPLIT,
-                n_estimators      = Constant.GBR_N_ESTIMATORS,
-                max_depth         = Constant.GBR_MAX_DEPTH,
-                learning_rate     = Constant.GBR_LEARNING_RATE,
-                #subsample         = Constant.GBR_SUBSAMPLE,
-                random_state      = random.randint ( Constant.RANDOM_MIN, Constant.RANDOM_MAX ),
-                warm_start        = Constant.GBR_WARM_START,
-                verbose           = Constant.GBR_VERBOSE
-            )
+    model = Model()
+    
+    model.algorithm = GradientBoostingRegressor (                                                
+                          max_features      = Constant.GBR_MAX_FEATURES,
+                          #min_samples_split = Constant.GBR_MIN_SAMPLES_SPLIT,
+                          n_estimators      = Constant.GBR_N_ESTIMATORS,
+                          max_depth         = Constant.GBR_MAX_DEPTH,
+                          learning_rate     = Constant.GBR_LEARNING_RATE,
+                          #subsample         = Constant.GBR_SUBSAMPLE,
+                          random_state      = random.randint ( Constant.RANDOM_MIN, Constant.RANDOM_MAX ),
+                          warm_start        = Constant.GBR_WARM_START,
+                          verbose           = Constant.GBR_VERBOSE
+                      )
             
     # Start clock
         
@@ -241,24 +243,16 @@ def train_new_model ( x_train, y_train ):
             
     # Train model.
             
-    algorythm.fit ( x_train, y_train )
+    model.algorithm.fit ( x_train, y_train )
     
     # Test model and compute performance characteristics.
         
-    training_log_loss, tranining_accuracy = compute_training_performance ( algorythm, x_train, y_train )
+    model.log_loss, model.accuracy = compute_training_performance ( model.algorithm, x_train, y_train )
     
     # Stop clock.    
     
-    clock_stop   = datetime.datetime.now () 
-    elapsed_time = clock_stop - clock_start
-    
-    # Compile training record and return training results.
-    
-    model               = Model()
-    model.algorythm     = algorythm    
-    model.log_loss      = training_log_loss
-    model.accuracy      = tranining_accuracy
-    model.training_time = elapsed_time
+    clock_stop          = datetime.datetime.now () 
+    model.training_time = clock_stop - clock_start
 
     return model
 
@@ -273,7 +267,7 @@ def train_best_model ( x_train, y_train, count ):
     
     Constant.LOG_LOSS_MAX          = sys.maxsize
     Constant.INDENT                = "    "
-    Constant.TABLE_HEADER          = "MODEL_INDEX\t   LOG_LOSS\t   ACCURACY\t   TRAINING_TIME"
+    Constant.TABLE_HEADER          = "MODEL_INDEX\tLOG_LOSS\tACCURACY\tTRAINING_TIME"
     
     # Local variables.
     
@@ -304,8 +298,8 @@ def train_best_model ( x_train, y_train, count ):
         # Report this training cycles' results.
                 
         s =  "\t\t" + "{0:.5f}".format ( model.log_loss )        
-        s += "\t\t"   + "{0:.3f}".format ( model.accuracy ) + " %"        
-        s += "\t\t" + time_to_string   ( model.training_time )    
+        s += "\t\t" + "{0:.3f}".format ( model.accuracy ) + " %"        
+        s += "\t"   + time_to_string   ( model.training_time )    
         print ( s )
     
     # Update best model.
@@ -318,7 +312,7 @@ def train_best_model ( x_train, y_train, count ):
     elapsed_time = clock_stop - clock_start
         
     # Return training record.
-        
+
     model.training_time = elapsed_time
 
     return model
@@ -328,18 +322,18 @@ def train_best_model ( x_train, y_train, count ):
 # Compute log loss.
 #-----------------------------------------------------------------------------
 
-def compute_training_performance ( algorythm, x_train, y_train ):
+def compute_training_performance ( algorithm, x_train, y_train ):
   
     # Retrieve comparison criteria.
   
     y_true = y_train
-    y_pred = algorythm.predict ( x_train ) 
+    y_pred = algorithm.predict ( x_train ) 
     
     # Convert continuous probability predictions, to binary integer predictions.
     
     y_pred_binary = [ round ( prediction ) for prediction in y_pred ]
     
-    # Compute logorythmic loss and accuracy.
+    # Compute logarithmic loss and accuracy.
 
     tranining_log_loss = log_loss ( y_true, y_pred )   
     tranining_accuracy = accuracy_score ( y_true, y_pred_binary ) * 100.0    
@@ -364,22 +358,21 @@ def console_report ( input_model, x_train, y_train ):
     model = Model ()
     model = copy.copy ( input_model )
     
-    training_time         = model.training_time    
-    best_log_loss         = model.log_loss
-    accuracy              = model.accuracy
-    average_training_time = training_time / Constant.TRAINING_MODEL_COUNT
+    training_time = model.training_time    
+    best_log_loss = model.log_loss
+    accuracy      = model.accuracy
 
     # Print reporting and analysis data.
     
     log ( Constant.INDENT + "Best log loss = " + "{0:.5f}".format ( best_log_loss ) )
-    log ( Constant.INDENT + "Best accuracy = " + "{0:.1f}".format ( accuracy ) )
-    log ( Constant.INDENT + "Training time = " + time_to_string ( average_training_time ) )
+    log ( Constant.INDENT + "Best accuracy = " + "{0:.1f}".format ( accuracy      ) )
+    log ( Constant.INDENT + "Training time = " + time_to_string   ( training_time ) )
     
     if Constant.REPORT_MODEL_PARAMETERS_ENABLED:
         
         log ( Constant.INDENT + "MODEL:\n" )        
         
-        model_parameters = model.algorythm.get_params()
+        model_parameters = model.algorithm.get_params()
         
         for key in model_parameters:
             
@@ -405,14 +398,14 @@ def write_model_to_log_file ( input_model, log_file ):
     model = Model ()
     model = copy.copy ( input_model )
     
-    algorythm_parameters = model.algorythm.get_params()    
+    algorithm_parameters = model.algorithm.get_params()    
         
     # Write results to log file.
     
     log_file = open ( log_file, "a" )
     log_str = ""
-    for key in algorythm_parameters:
-        log_str += str ( algorythm_parameters [ key ] ) + ","
+    for key in algorithm_parameters:
+        log_str += str ( algorithm_parameters [ key ] ) + ","
     log_str += time_to_string ( model.training_time ) + ","
     log_str += "{0:.5f}".format ( model.log_loss ) + "\n"
     log_file.write ( log_str )
@@ -436,14 +429,14 @@ def plot_data ( input_model ):
         
         feature_count = 21
         #indices       = range ( 0, feature_count     )
-        indices       = np.argsort ( model.algorythm.feature_importances_ )
+        indices       = np.argsort ( model.algorithm.feature_importances_ )
         bar_width     = 0.75
         
         # Plot the feature importances of the forest
         
         plt.bar (
             np.arange ( feature_count ),
-            model.algorythm.feature_importances_ [ indices ],
+            model.algorithm.feature_importances_ [ indices ],
             bar_width,
             color = 'grey',
             align = 'center'
