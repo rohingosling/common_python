@@ -9,6 +9,10 @@ import os
 #/////////////////////////////////////////////////////////////////////////////
     
 class Constant ( object ):
+
+    # Console output.
+    
+    INDENT = "  "
     
     # CSV file column names.
     
@@ -19,9 +23,9 @@ class Constant ( object ):
     # Data file path and file names.
     
     DATA_FILE_PATH        = "../data/"
-    DATA_FILE_TRAINING    = C_FILE_PATH + "numerai_training_data.csv"
-    DATA_FILE_APPLICATION = C_FILE_PATH + "numerai_tournament_data.csv"
-    DATA_FILE_PREDICTION  = C_FILE_PATH + "predictions.csv"
+    DATA_FILE_TRAINING    = DATA_FILE_PATH + "numerai_training_data.csv"
+    DATA_FILE_APPLICATION = DATA_FILE_PATH + "numerai_tournament_data.csv"
+    DATA_FILE_PREDICTION  = DATA_FILE_PATH + "predictions.csv"
     
     # Program file name.
     
@@ -30,19 +34,19 @@ class Constant ( object ):
     # Log file path and file name.
     
     LOG_FILE_PATH    = ""
-    LOG_FILE_NAME    = C_PROGRAM_FILE_NAME [ :-2 ] + "log"
+    LOG_FILE_NAME    = PROGRAM_FILE_NAME [ :-2 ] + "log"
     LOG_FILE_ENABLED = True
     
     # Training settings.
     
     TRAINING_MODEL_COUNT = 8
     
-    # Algorythms: GradientBoostingRegressor
+    # Algorithms: GradientBoostingRegressor
     
     GBR_MAX_FEATURES      = 7
     GBR_MAX_DEPTH         = 3
-    GBR_N_ESTIMATORS      = 3000
-    GBR_LEARNING_RATE     = 0.001
+    GBR_N_ESTIMATORS      = 8
+    GBR_LEARNING_RATE     = 0.01
     GBR_WARM_START        = False
     GBR_SUBSAMPLE         = 1.0
     GBR_MIN_SAMPLES_SPLIT = 2
@@ -52,4 +56,3 @@ class Constant ( object ):
     
     REPORT_MODEL_PARAMETERS_ENABLED    = True
     REPORT_FIGURE_FEATURE_RANK_ENABLED = True
-    
