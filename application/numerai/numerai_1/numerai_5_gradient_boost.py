@@ -6,6 +6,7 @@ import random
 import os
 import datetime
 import sys
+import copy
 
 import pandas            as pd
 import matplotlib.pyplot as plt
@@ -44,14 +45,14 @@ C_LOG_FILE_NAME = C_PROGRAM_FILE_NAME [ :-2 ] + "log"
 
 # Training settings.
 
-C_TRAINING_MODEL_COUNT = 2
+C_TRAINING_MODEL_COUNT = 8
 
 # Algorythms: GradientBoostingRegressor
 
-C_GBR_MAX_FEATURES      = 21
-C_GBR_MAX_DEPTH         = 2
-C_GBR_N_ESTIMATORS      = 8
-C_GBR_LEARNING_RATE     = 0.1
+C_GBR_MAX_FEATURES      = 7
+C_GBR_MAX_DEPTH         = 3
+C_GBR_N_ESTIMATORS      = 3000
+C_GBR_LEARNING_RATE     = 0.001
 C_GBR_WARM_START        = False
 C_GBR_SUBSAMPLE         = 1.0
 C_GBR_MIN_SAMPLES_SPLIT = 2
@@ -68,9 +69,12 @@ C_LOG_FILE_ENABLED                   = True
 # Data structures
 #/////////////////////////////////////////////////////////////////////////////
 
+# Model
+
 class Model ( object ):
-    def __init__(self):
-        self.algorythm     = GradientBoostingRegressor()
+    
+    def __init__ ( self ):
+        self.algorythm     = GradientBoostingRegressor ()
         self.log_loss      = 1.0
         self.accuracy      = 1.0
         self.training_time = datetime.timedelta ()
@@ -103,7 +107,7 @@ def main ():
     
     # Train model on training data.
     
-    log ( C_INDENT + "Training model." )
+    log ( C_INDENT + "Training " + str ( C_TRAINING_MODEL_COUNT ) + " model/s." )
     
     model = train_best_model ( x_train, y_train, C_TRAINING_MODEL_COUNT )
     
@@ -258,11 +262,11 @@ def train_new_model ( x_train, y_train ):
     
     algorythm = GradientBoostingRegressor (                                                
                 max_features      = C_GBR_MAX_FEATURES,
-                min_samples_split = C_GBR_MIN_SAMPLES_SPLIT,
+                #min_samples_split = C_GBR_MIN_SAMPLES_SPLIT,
                 n_estimators      = C_GBR_N_ESTIMATORS,
                 max_depth         = C_GBR_MAX_DEPTH,
                 learning_rate     = C_GBR_LEARNING_RATE,
-                subsample         = C_GBR_SUBSAMPLE,
+                #subsample         = C_GBR_SUBSAMPLE,
                 random_state      = random.randint ( C_RANDOM_MIN, C_RANDOM_MAX ),
                 warm_start        = C_GBR_WARM_START,
                 verbose           = C_GBR_VERBOSE
@@ -288,7 +292,7 @@ def train_new_model ( x_train, y_train ):
     # Compile training record and return training results.
     
     model               = Model()
-    model.model         = model    
+    model.algorythm     = algorythm    
     model.log_loss      = training_log_loss
     model.accuracy      = tranining_accuracy
     model.training_time = elapsed_time
@@ -306,23 +310,20 @@ def train_best_model ( x_train, y_train, count ):
     
     C_LOG_LOSS_MAX          = sys.maxsize
     C_INDENT                = "    "
-    C_TABLE_HEADER          = "MODEL_INDEX\tLOG_LOSS\tACCURACY\tTRAINING_TIME"
-    C_TABLE_HORIZONTAL_LINE = "-------------\t-------------\t-------------\t-------------" 
+    C_TABLE_HEADER          = "MODEL_INDEX\t   LOG_LOSS\t   ACCURACY\t   TRAINING_TIME"
     
     # Local variables.
     
-    training_record_best          = TrainingRecord ()
-    training_record_best.log_loss = C_LOG_LOSS_MAX
+    model_best          = Model ()
+    model_best.log_loss = C_LOG_LOSS_MAX
     
     # Start clock
         
     clock_start = datetime.datetime.now() 
     
     # Begin training sequence.
-                     
-    log ( C_INDENT + C_TABLE_HORIZONTAL_LINE )    
-    log ( C_INDENT + C_TABLE_HEADER )    
-    log ( C_INDENT + C_TABLE_HORIZONTAL_LINE )    
+                         
+    log ( C_INDENT + C_TABLE_HEADER )        
     
     for training_cycle in range ( 0, count ):
         
@@ -330,25 +331,23 @@ def train_best_model ( x_train, y_train, count ):
         
         # Train model.
         
-        training_record = train_new_model ( x_train, y_train )
+        model = train_new_model ( x_train, y_train )
                         
         # Update best model.
         
-        if training_record.log_loss < training_record_best.log_loss:            
-            training_record_best = training_record
+        if model.log_loss < model_best.log_loss:            
+            model_best = copy.copy ( model )
         
         # Report this training cycles' results.
                 
-        s =  "\t\t" + "{0:.5f}".format ( training_record.log_loss )        
-        s =  "\t\t" + "{0:.1f}".format ( training_record.accuracy )        
-        s += "\t\t" + time_to_string   ( training_record.training_time )    
+        s =  "\t\t" + "{0:.5f}".format ( model.log_loss )        
+        s += "\t\t"   + "{0:.3f}".format ( model.accuracy ) + " %"        
+        s += "\t\t" + time_to_string   ( model.training_time )    
         print ( s )
-    
-    log ( C_INDENT + C_TABLE_HORIZONTAL_LINE )    
     
     # Update best model.
       
-    training_record = training_record_best
+    model = copy.copy ( model_best )
             
     # Stop clock.    
     
@@ -357,26 +356,30 @@ def train_best_model ( x_train, y_train, count ):
         
     # Return training record.
         
-    training_record.training_time = elapsed_time
+    model.training_time = elapsed_time
 
-    return training_record
+    return model
 
 
 #-----------------------------------------------------------------------------
 # Compute log loss.
 #-----------------------------------------------------------------------------
 
-def compute_training_performance ( model, x_train, y_train ):
+def compute_training_performance ( algorythm, x_train, y_train ):
   
     # Retrieve comparison criteria.
   
     y_true = y_train
-    y_pred = model.predict ( x_train )
+    y_pred = algorythm.predict ( x_train ) 
+    
+    # Convert continuous probability predictions, to binary integer predictions.
+    
+    y_pred_binary = [ round ( prediction ) for prediction in y_pred ]
     
     # Compute logorythmic loss and accuracy.
 
-    tranining_log_loss = log_loss       ( y_true, y_pred )   
-    tranining_accuracy = accuracy_score ( y_true, y_pred ) * 100.0    
+    tranining_log_loss = log_loss ( y_true, y_pred )   
+    tranining_accuracy = accuracy_score ( y_true, y_pred_binary ) * 100.0    
     
     # Return results.
 
@@ -387,27 +390,33 @@ def compute_training_performance ( model, x_train, y_train ):
 # Plot data.
 #-----------------------------------------------------------------------------
 
-def console_report ( input_model, x_train, y_train, training_time ):
+def console_report ( input_model, x_train, y_train ):
+    
+    # Local constants.
     
     C_INDENT = "  "
     
     # Collect data to report on.
     
-    model = TrainingRecord ( input_model )
+    model = Model ()
+    model = copy.copy ( input_model )
     
+    training_time         = model.training_time    
     best_log_loss         = model.log_loss
+    accuracy              = model.accuracy
     average_training_time = training_time / C_TRAINING_MODEL_COUNT
 
     # Print reporting and analysis data.
     
     log ( C_INDENT + "Best log loss = " + "{0:.5f}".format ( best_log_loss ) )
+    log ( C_INDENT + "Best accuracy = " + "{0:.1f}".format ( accuracy ) )
     log ( C_INDENT + "Training time = " + time_to_string ( average_training_time ) )
     
     if C_REPORT_MODEL_PARAMETERS_ENABLED:
         
         log ( C_INDENT + "MODEL:\n" )        
         
-        model_parameters = model.get_params()
+        model_parameters = model.algorythm.get_params()
         
         for key in model_parameters:
             
@@ -426,21 +435,23 @@ def console_report ( input_model, x_train, y_train, training_time ):
 # Save current parameters and results to parameter log file.
 #-----------------------------------------------------------------------------
 
-def write_model_to_log_file ( model, log_file ):
+def write_model_to_log_file ( input_model, log_file ):
     
     # Retieve data to save.
     
-    model_parameters = model.get_params()
+    model = Model ()
+    model = copy.copy ( input_model )
     
+    algorythm_parameters = model.algorythm.get_params()    
         
     # Write results to log file.
     
     log_file = open ( log_file, "a" )
     log_str = ""
-    for key in model_parameters:
-        log_str += str ( model_parameters [ key ] ) + ","
-    log_str += time_to_string ( average_training_time ) + ","
-    log_str += "{0:.5f}".format ( best_log_loss ) + "\n"
+    for key in algorythm_parameters:
+        log_str += str ( algorythm_parameters [ key ] ) + ","
+    log_str += time_to_string ( model.training_time ) + ","
+    log_str += "{0:.5f}".format ( model.log_loss ) + "\n"
     log_file.write ( log_str )
     log_file.close()
     
@@ -451,7 +462,10 @@ def write_model_to_log_file ( model, log_file ):
 # Plot data.
 #-----------------------------------------------------------------------------
 
-def plot_data ( model ):
+def plot_data ( input_model ):
+    
+    model = Model ()
+    model = copy.copy ( input_model )
     
     if C_REPORT_FIGURE_FEATURE_RANK_ENABLED:
         
@@ -459,14 +473,14 @@ def plot_data ( model ):
         
         feature_count = 21
         #indices       = range ( 0, feature_count     )
-        indices       = np.argsort ( model.feature_importances_ )
+        indices       = np.argsort ( model.algorythm.feature_importances_ )
         bar_width     = 0.75
         
         # Plot the feature importances of the forest
         
         plt.bar (
             np.arange ( feature_count ),
-            model.feature_importances_ [ indices ],
+            model.algorythm.feature_importances_ [ indices ],
             bar_width,
             color = 'grey',
             align = 'center'
