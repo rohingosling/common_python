@@ -29,7 +29,7 @@ class Constant ( object ):
     
     # Program file name.
     
-    PROGRAM_FILE_NAME = os.path.basename ( __file__ )  
+    PROGRAM_FILE_NAME = "Numerai (Gradient Boost Regression - Model 05 version 1.0).py" #os.path.basename ( __file__ )  
     
     # Log file path and file name.
     
@@ -39,12 +39,12 @@ class Constant ( object ):
     
     # Training settings.
     
-    TRAINING_MODEL_COUNT = 8
+    TRAINING_MODEL_COUNT = 32
     
     # Algorithms: GradientBoostingRegressor
     
     GBR_MAX_FEATURES      = 4
-    GBR_MAX_DEPTH         = 3
+    GBR_MAX_DEPTH         = 4
     GBR_N_ESTIMATORS      = 400
     GBR_LEARNING_RATE     = 0.009
     GBR_WARM_START        = False
@@ -55,4 +55,11 @@ class Constant ( object ):
     # Reporting settings.
     
     REPORT_MODEL_PARAMETERS_ENABLED    = True
-    REPORT_FIGURE_FEATURE_RANK_ENABLED = True
+    REPORT_FIGURE_FEATURE_RANK_ENABLED = False
+	
+	
+	
+	
+	
+	
+	
