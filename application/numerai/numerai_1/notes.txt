@@ -1,51 +1,14 @@
 Originality:
 
     GradientBoostingRegressor
-        C_GBR_LEARNING_RATE = 0.0001
-        C_GBR_MAX_FEATURES  = 21
-        C_GBR_N_ESTIMATORS  = 1024
-        C_GBR_MAX_DEPTH     = 4
 
-    GradientBoostingRegressor
+        - prediction file:    ?
+        - Training logloss:   ?
+        - Numerai logloss:    ?
+        - Numerai position:   ?
+        - Numerai anual rate: ?
 
-        - prediction file:    predictions_6_originality.csv
-        - Training logloss:   0.69285
-        - Numerai logloss:    0.69264     
-        - Numerai position:   178/509
-        - Numerai anual rate: $3,300
-
-        C_GBR_LEARNING_RATE = 0.0001
-        C_GBR_MAX_FEATURES  = 7
-        C_GBR_N_ESTIMATORS  = 2048
+        C_GBR_LEARNING_RATE = 0.009
+        C_GBR_MAX_FEATURES  = 4
+        C_GBR_N_ESTIMATORS  = 400
         C_GBR_MAX_DEPTH     = 3
-
-    GradientBoostingRegressor
-
-        - prediction file:    predictions_7_originality
-        - Training logloss:   0.69227
-        - Numerai logloss:    0.69247     
-        - Numerai position:   174/509
-        - Numerai anual rate: $3,300
-
-        C_GBR_LEARNING_RATE = 0.0001
-        C_GBR_MAX_FEATURES  = 7
-        C_GBR_N_ESTIMATORS  = 2048
-        C_GBR_MAX_DEPTH     = 3
-
-Low log loss:
-
-Low log loss + Originality:
-
-    GradientBoostingRegressor
-        - prediction file:    predictions_8_originality_plus_logloss
-        - Training logloss:   0.68946
-        - Numerai logloss:    0.69132     
-        - Numerai position:   112/509
-        - Numerai anual rate: $1,452
-
-        C_GBR_MAX_FEATURES  = 7
-        C_GBR_MAX_DEPTH     = 3
-        C_GBR_N_ESTIMATORS  = 4096
-        C_GBR_LEARNING_RATE = 0.001        
-        
-        

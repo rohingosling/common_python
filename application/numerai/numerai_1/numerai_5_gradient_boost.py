@@ -27,7 +27,9 @@ from numerai_constants import Constant
 # Constants
 #/////////////////////////////////////////////////////////////////////////////
 
-pass
+C_PROGRAM_NAME         = "Numerai Model-5"
+C_PROGRAM_VERSION      = "1.0"
+C_PROGRAM_TITLE_STRING = C_PROGRAM_NAME + " ( Version " + str ( C_PROGRAM_VERSION ) + " )"
 
 #/////////////////////////////////////////////////////////////////////////////
 # Data structures
@@ -39,10 +41,11 @@ class Model ( object ):
     
     def __init__ ( self ):
     
-        self.algorithm     = GradientBoostingRegressor ()
-        self.log_loss      = 1.0
-        self.accuracy      = 1.0
-        self.training_time = datetime.timedelta ( 0 )
+        self.algorithm      = GradientBoostingRegressor ()
+        self.log_loss       = 1.0
+        self.accuracy       = 1.0
+        self.training_time  = datetime.timedelta ( 0 )                
+        self.algorithm_name = str ( self.algorithm.__class__ ) [ 8 : len ( str ( self.algorithm.__class__ ) ) - 2 ]         
 
 #/////////////////////////////////////////////////////////////////////////////
 # Functions.
@@ -55,7 +58,7 @@ class Model ( object ):
 def main ():
 
     new_line ()
-    log ( "PROGRAM: " + Constant.PROGRAM_FILE_NAME )    
+    log ( "PROGRAM: " + C_PROGRAM_TITLE_STRING )    
     
     #-------------------------------------------------------------------------
     # Train model.
@@ -64,9 +67,9 @@ def main ():
     # Load training data.
     
     log ( "TRAINING:" )
-    log ( Constant.INDENT + "Loading training data: " + " \"" + Constant.DATA_FILE_TRAINING + "\""  )    
+    log ( Constant.INDENT + "Loading training data: " + " \"" + Constant.DataFile.PATH + Constant.DataFile.TRAINING + "\""  )    
     
-    x_train, y_train = load_training_data ( Constant.DATA_FILE_TRAINING )
+    x_train, y_train = load_training_data ( Constant.DataFile.PATH + Constant.DataFile.TRAINING )
     
     # Train model on training data.
     
@@ -82,9 +85,9 @@ def main ():
     # Load application data.
     
     log ( "APPLICATION:" )
-    log ( Constant.INDENT + "Loading application data: " + " \"" + Constant.DATA_FILE_APPLICATION + "\""  )    
+    log ( Constant.INDENT + "Loading application data: " + " \"" + Constant.DataFile.PATH + Constant.DataFile.APPLICATION + "\""  )    
     
-    x_application, data_application = load_application_data ( Constant.DATA_FILE_APPLICATION )
+    x_application, data_application = load_application_data ( Constant.DataFile.PATH + Constant.DataFile.APPLICATION )
     
     # Apply model to application data.
     
@@ -97,7 +100,7 @@ def main ():
     # Save results.
     #-------------------------------------------------------------------------
     
-    log ( Constant.INDENT + "Saving results: " + " \"" + Constant.DATA_FILE_PREDICTION + "\""  )
+    log ( Constant.INDENT + "Saving results: " + " \"" + Constant.DataFile.PATH + Constant.DataFile.PREDICTION + "\""  )
     
     save_application_results ( data_application, y_application )
     
@@ -146,14 +149,27 @@ def new_line():
 
 def time_to_string ( time ):        
     
-        ms_str   = str ( time )[-7:]
-        ms       = round ( float (ms_str), 3 )
-        ms_str   = "{0:.3f}".format ( ms )
-        time_str = str ( time )[:-6] + ms_str[2:]
+    ms_str   = str ( time )[-7:]
+    ms       = round ( float (ms_str), 3 )
+    ms_str   = "{0:.3f}".format ( ms )
+    time_str = str ( time )[:-6] + ms_str[2:]
 
-        return time_str
+    return time_str
 
+#-----------------------------------------------------------------------------
 
+def table_row ( data_list, col_width ):
+    
+    data             = list ( data_list )    
+    table_col_format = '{0: <' + str (col_width) + '}'
+
+    s = ""    
+    for value in data:
+        s += table_col_format.format ( str ( value ) )
+        
+    return s
+        
+    
 #-----------------------------------------------------------------------------
 # Load training data.
 #-----------------------------------------------------------------------------
@@ -168,7 +184,7 @@ def load_training_data ( data_file_training ):
     # - Input vector = x_train
     # - Output vector = y_train
     
-    x_train = data_training.drop ( Constant.CSV_TRAINING_TARGET, axis = 1 )
+    x_train = data_training.drop ( Constant.CSV.Header.TRAINING_TARGET, axis = 1 )
     y_train = data_training.target.values                           
     
     return x_train, y_train 
@@ -188,7 +204,7 @@ def load_application_data ( FILE_APPLICATION ):
     # - Input vector = x_application
     # - Output vector = y_application ...To be allocated after model execution.
     
-    x_application = data_application.drop ( Constant.CSV_APPLICATION_ID, axis = 1 ) 
+    x_application = data_application.drop ( Constant.CSV.Header.APPLICATION_ID, axis = 1 ) 
     
     return x_application, data_application
 
@@ -199,14 +215,14 @@ def load_application_data ( FILE_APPLICATION ):
 
 def save_application_results ( data_application, y_application ):
 
-    data_application [ Constant.CSV_APPLICATION_PROBABILITY ] = y_application
+    data_application [ Constant.CSV.Header.APPLICATION_PROBABILITY ] = y_application
     #data_application [ Constant.CSV_APPLICATION_PROBABILITY ] = y_application [ :, 1 ]
     
     # Save the results to file.    
     
     data_application.to_csv (
-        Constant.DATA_FILE_PREDICTION, 
-        columns = ( Constant.CSV_APPLICATION_ID, Constant.CSV_APPLICATION_PROBABILITY ), 
+        Constant.DataFile.PATH + Constant.DataFile.PREDICTION, 
+        columns = ( Constant.CSV.Header.APPLICATION_ID, Constant.CSV.Header.APPLICATION_PROBABILITY ), 
         index   = None
     )
 
@@ -227,18 +243,18 @@ def train_new_model ( x_train, y_train ):
     
     model.algorithm = GradientBoostingRegressor (                                                
                           max_features      = Constant.GBR_MAX_FEATURES,
-                          #min_samples_split = Constant.GBR_MIN_SAMPLES_SPLIT,
+                          min_samples_split = Constant.GBR_MIN_SAMPLES_SPLIT,
                           n_estimators      = Constant.GBR_N_ESTIMATORS,
                           max_depth         = Constant.GBR_MAX_DEPTH,
                           learning_rate     = Constant.GBR_LEARNING_RATE,
-                          #subsample         = Constant.GBR_SUBSAMPLE,
+                          subsample         = Constant.GBR_SUBSAMPLE,
                           random_state      = random.randint ( Constant.RANDOM_MIN, Constant.RANDOM_MAX ),
                           warm_start        = Constant.GBR_WARM_START,
                           verbose           = Constant.GBR_VERBOSE
                       )
             
     # Start clock
-        
+   
     clock_start = datetime.datetime.now() 
             
     # Train model.
@@ -265,14 +281,16 @@ def train_best_model ( x_train, y_train, count ):
     
     # Local constants.    
     
-    Constant.LOG_LOSS_MAX          = sys.maxsize
-    Constant.INDENT                = "    "
-    Constant.TABLE_HEADER          = "MODEL_INDEX\tLOG_LOSS\tACCURACY\tTRAINING_TIME"
-    
+    LOG_LOSS_MAX     = sys.maxsize
+    TABLE_INDENT     = 2 * Constant.INDENT
+    TABLE_COL_WIDTH  = 14
+        
     # Local variables.
     
     model_best          = Model ()
-    model_best.log_loss = Constant.LOG_LOSS_MAX
+    model_best.log_loss = LOG_LOSS_MAX
+    table_row_header    = [ 'MODEL_INDEX', 'LOG_LOSS', 'ACCURACY', 'TRAINING_TIME' ]
+    table_row_data      = []
     
     # Start clock
         
@@ -280,11 +298,9 @@ def train_best_model ( x_train, y_train, count ):
     
     # Begin training sequence.
                          
-    log ( Constant.INDENT + Constant.TABLE_HEADER )        
+    log ( TABLE_INDENT + table_row ( table_row_header, TABLE_COL_WIDTH ) )        
     
     for training_cycle in range ( 0, count ):
-        
-        log ( Constant.INDENT + str ( training_cycle + 1 ) + "/" + str ( count ), newline = False )    
         
         # Train model.
         
@@ -296,11 +312,14 @@ def train_best_model ( x_train, y_train, count ):
             model_best = copy.copy ( model )
         
         # Report this training cycles' results.
-                
-        s =  "\t\t" + "{0:.5f}".format ( model.log_loss )        
-        s += "\t\t" + "{0:.3f}".format ( model.accuracy ) + " %"        
-        s += "\t"   + time_to_string   ( model.training_time )    
-        print ( s )
+        
+        table_row_data.clear  ()
+        table_row_data.append ( str ( training_cycle + 1 ) + "/" + str ( count ) )
+        table_row_data.append ( "{0:.5f}".format ( model.log_loss )              )
+        table_row_data.append ( "{0:.3f}".format ( model.accuracy ) + " %"       )
+        table_row_data.append ( time_to_string   ( model.training_time )         )
+        
+        log ( TABLE_INDENT + table_row ( table_row_data, TABLE_COL_WIDTH ) )
     
     # Update best model.
       
@@ -349,23 +368,21 @@ def compute_training_performance ( algorithm, x_train, y_train ):
 
 def console_report ( input_model, x_train, y_train ):
     
-    # Local constants.
-    
-    Constant.INDENT = "  "
-    
     # Collect data to report on.
     
     model = Model ()
     model = copy.copy ( input_model )
     
+    algorithm     = model.algorithm_name
     training_time = model.training_time    
     best_log_loss = model.log_loss
     accuracy      = model.accuracy
 
     # Print reporting and analysis data.
     
+    log ( Constant.INDENT + "Algorithm     = " + algorithm )
     log ( Constant.INDENT + "Best log loss = " + "{0:.5f}".format ( best_log_loss ) )
-    log ( Constant.INDENT + "Best accuracy = " + "{0:.1f}".format ( accuracy      ) )
+    log ( Constant.INDENT + "Best accuracy = " + "{0:.1f}".format ( accuracy ) + " %" )
     log ( Constant.INDENT + "Training time = " + time_to_string   ( training_time ) )
     
     if Constant.REPORT_MODEL_PARAMETERS_ENABLED:
@@ -393,27 +410,82 @@ def console_report ( input_model, x_train, y_train ):
 
 def write_model_to_log_file ( input_model, log_file ):
     
+    # Local constants.
+    
+    DELIMITER    = ','
+    NEW_LINE     = '\n'
+    EMPTY_STRING = ''
+    
     # Retieve data to save.
     
-    model = Model ()
-    model = copy.copy ( input_model )
+    # Retrieve model data.    
     
-    algorithm_parameters = model.algorithm.get_params()    
+    model                = Model ()
+    model                = copy.copy ( input_model )    
+    algorithm_parameters = model.algorithm.get_params()   
+    
+    # Get time and date info.
+    
+    save_time_date = datetime.datetime.now  ()
+    save_time      = datetime.datetime.time ( save_time_date )
+    save_date      = datetime.datetime.date ( save_time_date )
+    
+    # Compile filename.
+    
+    if log_file == '-':
+        log_file = model.algorithm_name.replace ( '.', '_' ) + ".log.csv"
+    
+    # Check to see of hte log file exists.
+    
+    if os.path.exists ( log_file ):
+        file_exists = True
+    else:
+        file_exists = False
         
-    # Write results to log file.
+    # Open file.
+        
+    log_file = open ( log_file, Constant.File.APPEND )
+    log_str  = EMPTY_STRING
+        
+    # Open file, or create file if it does not yet exist.
     
-    log_file = open ( log_file, "a" )
-    log_str = ""
+    if not file_exists:
+        
+        # Create a new file and add the CSV header.
+        
+        log_str += "date" + DELIMITER
+        log_str += "time" + DELIMITER
+        log_str += "training_time" + DELIMITER
+        log_str += "log_loss" + DELIMITER
+        log_str += "accuracy" + DELIMITER
+        
+        for key in algorithm_parameters:
+            log_str += str ( key ) + DELIMITER
+            
+        log_str += "program_name" + DELIMITER
+        log_str += "program_version" + DELIMITER
+        log_str += "algorythm" + NEW_LINE
+        
+    # Write CSV data to file.
+        
+    log_str += str ( save_date ) + DELIMITER 
+    log_str += str ( save_time ) + DELIMITER
+    log_str += time_to_string ( model.training_time ) + DELIMITER
+    log_str += "{0:.5f}".format ( model.log_loss ) + DELIMITER
+    log_str += "{0:.1f}".format ( model.accuracy ) + DELIMITER
+        
     for key in algorithm_parameters:
-        log_str += str ( algorithm_parameters [ key ] ) + ","
-    log_str += time_to_string ( model.training_time ) + ","
-    log_str += "{0:.5f}".format ( model.log_loss ) + "\n"
-    log_file.write ( log_str )
+        log_str += str ( algorithm_parameters [ key ] ) + DELIMITER
+            
+    log_str += C_PROGRAM_NAME + DELIMITER
+    log_str += C_PROGRAM_VERSION + DELIMITER
+    log_str += str ( model.algorithm_name ) + NEW_LINE
+    
+    # Wrie CSV data and close file.
+
+    log_file.write ( log_str )    
     log_file.close()
     
-            
-
-
 #-----------------------------------------------------------------------------
 # Plot data.
 #-----------------------------------------------------------------------------
