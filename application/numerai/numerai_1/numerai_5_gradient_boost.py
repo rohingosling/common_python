@@ -103,6 +103,7 @@ def main ():
     log ( Constant.INDENT + "Saving results: " + " \"" + Constant.DataFile.PATH + Constant.DataFile.PREDICTION + "\""  )
     
     save_application_results ( data_application, y_application )
+
     
     
     #-------------------------------------------------------------------------
@@ -213,7 +214,7 @@ def load_application_data ( FILE_APPLICATION ):
 # Save application results.
 #-----------------------------------------------------------------------------
 
-def save_application_results ( data_application, y_application ):
+def save_application_results ( data_application, y_application, file_name = Constant.DataFile.PREDICTION ):
 
     data_application [ Constant.CSV.Header.APPLICATION_PROBABILITY ] = y_application
     #data_application [ Constant.CSV_APPLICATION_PROBABILITY ] = y_application [ :, 1 ]
@@ -221,7 +222,7 @@ def save_application_results ( data_application, y_application ):
     # Save the results to file.    
     
     data_application.to_csv (
-        Constant.DataFile.PATH + Constant.DataFile.PREDICTION, 
+        Constant.DataFile.PATH + file_name, 
         columns = ( Constant.CSV.Header.APPLICATION_ID, Constant.CSV.Header.APPLICATION_PROBABILITY ), 
         index   = None
     )
@@ -310,7 +311,7 @@ def train_best_model ( x_train, y_train, count ):
         
         if model.log_loss < model_best.log_loss:            
             model_best = copy.copy ( model )
-        
+            
         # Report this training cycles' results.
         
         table_row_data.clear  ()

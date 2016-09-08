@@ -1,3 +1,13 @@
 date,time,training_time,log_loss,accuracy,subsample,verbose,n_estimators,learning_rate,min_samples_leaf,max_features,max_leaf_nodes,max_depth,alpha,loss,random_state,warm_start,min_samples_split,min_weight_fraction_leaf,presort,init,program_name,program_version,algorythm
 2016-09-08,00:06:50.591250,0:03:36.905,0.68985,53.4,1.0,0,400,0.009,1,4,None,3,0.9,ls,845,False,2,0.0,auto,None,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
 2016-09-08,00:13:40.758883,0:03:28.601,0.68985,53.4,3,None,0.9,None,False,735,auto,0.0,400,1.0,4,0.009,2,1,ls,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-09-08,02:12:18.030793,0:02:14.882,0.68986,53.4,0.009,2,None,1.0,auto,False,1,4,0.9,ls,400,3,None,0.0,311,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-09-08,02:22:32.198552,0:01:38.562,0.69087,52.7,0.009,2,None,1.0,auto,False,1,4,0.9,ls,400,3,None,0.0,644,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-09-08,02:23:57.016217,0:00:33.080,0.68986,53.4,0.009,2,None,1.0,auto,False,1,4,0.9,ls,400,3,None,0.0,179,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-09-08,02:24:42.147848,0:00:35.680,0.68985,53.5,0.009,2,None,1.0,auto,False,1,4,0.9,ls,400,3,None,0.0,177,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-09-08,02:27:59.506155,0:00:36.923,0.68987,53.4,0.009,2,None,1.0,auto,False,1,4,0.9,ls,400,3,None,0.0,402,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-09-08,02:30:17.958913,0:00:34.866,0.68985,53.4,0.009,2,None,1.0,auto,False,1,4,0.9,ls,400,3,None,0.0,171,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-09-08,02:54:36.657109,0:01:09.685,0.68985,53.4,0.009,2,None,1.0,auto,False,1,4,0.9,ls,400,3,None,0.0,616,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-09-08,02:55:59.083277,0:01:06.938,0.68985,53.4,0.009,2,None,1.0,auto,False,1,4,0.9,ls,400,3,None,0.0,972,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-09-08,02:57:42.315524,0:01:08.490,0.68986,53.4,0.009,2,None,1.0,auto,False,1,4,0.9,ls,400,3,None,0.0,676,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-09-08,03:18:51.409979,0:15:33.382,0.68784,54.7,400,1,4,4,None,0.9,948,None,0,1.0,0.009,0.0,auto,2,ls,False,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
