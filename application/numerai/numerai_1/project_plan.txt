@@ -11,10 +11,9 @@ Numerai Model - Project Plan - 1.0
       6.2. Implement random sampling and compare tithe grid search.
       6.3. Implement anealing, and compare with grid and random simpling.
    7. Implement K-Means clustering on input data.
-      7.1. Research alternatives to K-Means
-      7.2. Implement an alternative to K-Means, and compare it using the new cluster test functions.
-      7.3. Implement K-Means on the Numerai data set.
-      7.4. Implement the alternative on the Numerai data set, and compare results.
+      7.1. Research comparison between Self Organising Maps and K-Means
+      7.2. Implement both SOM and K-Means on the new cluster data generator, and compare results. 
+      7.3. Implement both SOM and K-Means on the Numerai data set, and comapre results.
    8. Upgrade from sklearn gradient boost regressor, to xgboost.
    9. Grid search for algorythm paramter optimisation analysis of xgboost parameters.
   10. Implement autoamted parameter optimization using simulated annealing.
