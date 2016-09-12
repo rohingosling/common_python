@@ -3,15 +3,26 @@ Numerai Model - Project Plan - 1.0
 *  1. Log loss measurment.
 *  2. Time measurment.
 *  3. Data structure to store model paramters. e.g. algorythm, log loss, accuracy, etc.
->  4. Algorythm parameter history to log file. 
+*  4. Algorythm parameter history to log file.
+>     4.1. Fix order of parameters in logo file.
    5. Cross validation.
-   6. Grid search for algorythm paramter optimisation analysis of gradient boost regressor parameters.
-   7. Upgrade from sklearn gradient boost regressor, to xgboost.
-   8. Grid search for algorythm paramter optimisation analysis of xgboost parameters.
-   9. Implement autoamted parameter optimization using simulated annealing.
-  10. Push for sub 0.69050 logloss on both public and private LB's.
-  11. PCA pre-processing.
-  12. Historical training and validation data managment.
-  13. K-Means clustering.
+   6. Implement parameter optimisation for gradient boost regressor.
+      6.1. Implemnt a grid search.
+      6.2. Implement random sampling and compare tithe grid search.
+      6.3. Implement anealing, and compare with grid and random simpling.
+   7. Implement K-Means clustering on input data.
+      7.1. Research alternatives to K-Means
+      7.2. Implement an alternative to K-Means, and compare it using the new cluster test functions.
+      7.3. Implement K-Means on the Numerai data set.
+      7.4. Implement the alternative on the Numerai data set, and compare results.
+   8. Upgrade from sklearn gradient boost regressor, to xgboost.
+   9. Grid search for algorythm paramter optimisation analysis of xgboost parameters.
+  10. Implement autoamted parameter optimization using simulated annealing.
+  11. Push for sub 0.69050 logloss on both public and private LB's.
+  12. PCA pre-processing.
+  13. Historical training and validation data managment.
+  14. K-Means clustering.
   
-  14. Begin Forex implementation.
+  20+. Begin Forex implementation.
+  
+  30+. Begin work on prosthetic hand.
