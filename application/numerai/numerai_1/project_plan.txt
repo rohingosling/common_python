@@ -4,7 +4,7 @@ Numerai Model - Project Plan - 1.0
 *  2. Time measurment.
 *  3. Data structure to store model paramters. e.g. algorythm, log loss, accuracy, etc.
 *  4. Algorythm parameter history to log file.
->     4.1. Fix order of parameters in logo file.
+>     4.1. Fix order of parameters in log file.
    5. Cross validation.
    6. Implement parameter optimisation for gradient boost regressor.
       6.1. Implemnt a grid search.
