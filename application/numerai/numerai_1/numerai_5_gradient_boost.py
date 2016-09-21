@@ -502,23 +502,31 @@ def plot_data ( input_model ):
         
         feature_count = 21
         #indices       = range ( 0, feature_count     )
-        indices       = np.argsort ( model.algorithm.feature_importances_ )
-        bar_width     = 0.75
+        indices       = np.argsort ( model.algorithm.feature_importances_ )        
+        y_unit        = 0.01
+        index_max     = model.algorithm.feature_importances_.max()
+        bar_width     = 0.66 * ( 1.0 / float ( feature_count ) )
         
         # Plot the feature importances of the forest
         
         plt.bar (
-            np.arange ( feature_count ),
-            model.algorithm.feature_importances_ [ indices ],
-            bar_width,
-            color = 'grey',
-            align = 'center'
+            left   = np.arange ( feature_count ) / ( feature_count - 1 ),
+            height = model.algorithm.feature_importances_ [ indices ],
+            width  = bar_width,
+            color  = 'grey',
+            align  = 'center'
         )
         
-        plt.title  ( "Feature Rank" )
+        plt.title  ( "Feature Rank", fontsize = 10 )
         plt.ylabel ( "Relative Feature Rank" )
         plt.xlabel ( "Feature" )
-        plt.xticks ( np.arange ( feature_count ) + bar_width/2.0, indices )
+        plt.xticks ( np.arange ( feature_count ) / ( feature_count - 1.0 ), indices, fontsize = 8 )        
+        plt.yticks ( np.arange ( 0.0, index_max + y_unit, y_unit ), np.arange ( 0.0, index_max + y_unit, y_unit ), fontsize = 8 )
+        
+        plt.xlim ( [ -bar_width, 1.0 + bar_width ] )
+        
+        #plt.grid ( True )
+        #plt.axes().set_aspect ( 'equal' )        
         
         plt.show ()
         

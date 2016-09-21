@@ -52,12 +52,12 @@ def generate_data_gausian_archimedean_spiral ( data, x, y, sigma, turn_count, sp
     
     t_min   = 0.0
     t_max   = 1.0
-    r_scale = 0.5
+    r_scale = 0.3
     
     # Configure Archimedean spiral parameters.
     
-    a = 1.0     # Spiral polar gradient.
-    b = 0.0     # Spiral polar r intercept. 
+    a = 1.5     # Spiral polar gradient.
+    b = 0.15     # Spiral polar r intercept. 
     
     # Compute angular step sise that acomodates total data point count in 2*PI radians..
     
@@ -359,7 +359,7 @@ def plot_data ( data ):
     
     # Configure figure.
     
-    plt.plot( data[:,X], data[:,Y], plot_style, markersize = 2, alpha = 1.0 )
+    plt.plot( data[:,X], data[:,Y], plot_style, markersize = 2, alpha = 0.5 )
 
     plt.xticks ( x_range, fontsize = font_size_tick )
     plt.yticks ( y_range, fontsize = font_size_tick )
@@ -383,10 +383,10 @@ def main ():
     
     x            = 0.5
     y            = 0.5 
-    turn_count   = 2.0
-    sigma        = 0.04    
+    turn_count   = 1.5
+    sigma        = 0.05   
     spiral_count = 2    
-    data_count   = 1000 * 4
+    data_count   = 1024 * 6
     
     # Generate data.    
     
@@ -400,7 +400,15 @@ def main ():
     
     # Test
     
-    print ( 'Length of data = ' + str ( len(data) ) ) 
+    print ( 'generator_function     = ' + '"gausian_archimedean_spiral"' )    
+    print ( 'translation.x          = ' + str ( x ) ) 
+    print ( 'translation.y          = ' + str ( y ) ) 
+    print ( 'gausian.sigma          = ' + str ( sigma ) ) 
+    print ( 'gausian.mu             = ' + str ( 0.0 ) ) 
+    print ( 'data_count             = ' + str ( len(data) ) ) 
+    print ( 'spiral_count           = ' + str ( spiral_count ) ) 
+    print ( 'archimedean_turn_count = ' + str ( turn_count ) )
+    
     
 # Program entry point.    
     
