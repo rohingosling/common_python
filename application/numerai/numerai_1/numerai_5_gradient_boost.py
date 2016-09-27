@@ -9,6 +9,7 @@ import os
 import datetime
 import sys
 import copy
+import winsound
 
 import pandas            as pd
 import matplotlib.pyplot as plt
@@ -140,6 +141,8 @@ def log ( message, newline = True ):
         print ( "[" + ts + "]: " + message )
     else:
         print ( "[" + ts + "]: " + message, end="" )
+        
+    winsound.Beep ( 12000, 70 )
 
 #-----------------------------------------------------------------------------
 
@@ -493,6 +496,14 @@ def write_model_to_log_file ( input_model, log_file ):
 
 def plot_data ( input_model ):
     
+    # Local variables.
+    
+    font_size_text  = 6
+    font_size_axies = 5
+    color_bar       = '0.75'
+    
+    # Plot data.
+    
     model = Model ()
     model = copy.copy ( input_model )
     
@@ -510,18 +521,19 @@ def plot_data ( input_model ):
         # Plot the feature importances of the forest
         
         plt.bar (
-            left   = np.arange ( feature_count ) / ( feature_count - 1 ),
-            height = model.algorithm.feature_importances_ [ indices ],
-            width  = bar_width,
-            color  = 'grey',
-            align  = 'center'
+            left      = np.arange ( feature_count ) / ( feature_count - 1 ),
+            height    = model.algorithm.feature_importances_ [ indices ],
+            width     = bar_width,
+            color     = color_bar,
+            edgecolor ='none',
+            align     = 'center'
         )
         
-        plt.title  ( "Feature Rank", fontsize = 10 )
-        plt.ylabel ( "Relative Feature Rank" )
-        plt.xlabel ( "Feature" )
-        plt.xticks ( np.arange ( feature_count ) / ( feature_count - 1.0 ), indices, fontsize = 8 )        
-        plt.yticks ( np.arange ( 0.0, index_max + y_unit, y_unit ), np.arange ( 0.0, index_max + y_unit, y_unit ), fontsize = 8 )
+        plt.title  ( "Feature Rank",          fontsize = font_size_text )
+        plt.ylabel ( "Relative Feature Rank", fontsize = font_size_text )
+        plt.xlabel ( "Feature",               fontsize = font_size_text )
+        plt.xticks ( np.arange ( feature_count ) / ( feature_count - 1.0 ), indices, fontsize = font_size_axies )        
+        plt.yticks ( np.arange ( 0.0, index_max + y_unit, y_unit ), np.arange ( 0.0, index_max + y_unit, y_unit ), fontsize = font_size_axies )
         
         plt.xlim ( [ -bar_width, 1.0 + bar_width ] )
         

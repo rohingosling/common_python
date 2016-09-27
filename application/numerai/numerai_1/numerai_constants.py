@@ -52,7 +52,7 @@ class Constant ( object ):
     
     # Training settings.
     
-    TRAINING_MODEL_COUNT = 1
+    TRAINING_MODEL_COUNT = 4
     
     # Algorithms: GradientBoostingRegressor
     
