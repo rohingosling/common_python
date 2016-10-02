@@ -3,347 +3,420 @@
 import numpy  as np
 import math
 
-# FUNCTION: Polar projection.
-#
-# PRECONDITIONS:
-# - Both polar coordinates must be normalised to the range, [0.0..1.0].
+from sklearn import preprocessing
 
-def polar_to_cartesian_projection ( t, r ):
+# FUNCTION: generate_test_data
+
+def generate_test_data ( data, labels ):
     
-    # Local constants.
+    test_case = 4
     
-    PI = math.pi
+    if test_case == 1:      # Two rings.
+        data, labels = test_data_1 ( data, labels)
+
+    elif test_case == 2:    # Torus knot.                
+        data, labels = test_data_2 ( data, labels)
+
+    elif test_case == 3:    # Duel toru sknot.
+        data, labels = test_data_3 ( data, labels)
+
+    elif test_case == 4:    # Torus manifold.
+        data, labels = test_data_4 ( data, labels)        
+
+    elif test_case == 5:    # Geosphere.
+        data, labels = test_data_5 ( data, labels)        
+    
+    else:
+        print ( 'WARNING: No test case selected.\n' )
+
+    # Return data.
+    
+    return data, labels
+
+# FUNCTION: Test data 1 - Two Rings
+
+def test_data_1 ( data, labels):
         
-    # Convert angular coordinate to radians.
-    # - We prsume the angular coordinate is expressed as a real in the range [0.0..1.0]
+    # Initialize local variables.    
     
-    t = 2.0 * PI * t    
+    data_count = int ( 1000 * 2 )
+    sigma      = 0.1
+    R          = 0.5
+    
+    # Generage data.
+    
+    data_torus = []
+    data_torus = generate_gausian_torus  ( data_torus, R, sigma, data_count )    
+    data_torus = transform_data_rotate   ( data_torus,  0.0, 0.0, 0.0 )
+    data_torus = transform_data_displace ( data_torus, -0.25, 0.0, 0.0 )
+    data       = data_torus
+    
+    data_labels = [ [ 0 ] ] * data_count     
+    labels      = data_labels
+    
+    
+    data_torus = []
+    data_torus = generate_gausian_torus ( data_torus, R, sigma, data_count )
+    data_torus = transform_data_rotate   ( data_torus,  0.25, 0.0, 0.0 )
+    data_torus = transform_data_displace ( data_torus,  0.25, 0.0, 0.0 )
+    data       = np.concatenate ( ( data, data_torus ), axis = 0 )
+    
+    data_labels = [ [ 1 ] ] * data_count     
+    labels      = np.concatenate ( ( labels, data_labels ), axis = 0 )
+    
+    # Return data.
+    
+    return data, labels
 
-    # Compute cartesian to polar projection.        
-    
-    x = r * math.sin ( t )
-    y = r * math.cos ( t )
-    
-    return x, y
+# FUNCTION: Test data 2 - Torus Knot
 
-# Function generate gausian spirals.
-
-def generate_data_gausian_archimedean_spiral ( data, xd, yd, sigma, turn_count, spiral_count, data_count ):
-    
-    # local constants
-    
-    MU = 0.0
-    MARKER_CLUSTERS_ENABLED = True   
-
-    # MArker cluster flags.
-
-    marker_cluster_generated = [ False, False, False ]         
-    
-    # Convert integers for floats for floating point calculations.
-    
-    f_spiral_count = float ( spiral_count )
-    f_data_count   = float ( data_count )    
-    
-    # Configure polar coordinate space.
-    
-    t_min   = 0.0
-    t_max   = 1.0
-    r_scale = 0.5
-    
-    # Configure Archimedean spiral parameters.
-    
-    a = 1.0           # Spiral polar gradient.
-    b = 0.25 / 2.0    # Spiral polar r intercept. 
-    
-    # Compute angular step sise that acomodates total data point count in 2*PI radians..
-    
-    t_step = f_spiral_count * t_max / ( f_data_count )
-    
-    # Compute radial phase step, for incrementing the phase of multiple spirals.
-    
-    t_phase_min  = 0.0
-    t_phase_max  = 1.0
-    t_phase_step = 1.0 / f_spiral_count
-    
-    # Generate Gausian Archimedean spiral data.
-    
-    for t_phase in np.arange ( t_phase_min, t_phase_max, t_phase_step ):
-    
-        for t in np.arange ( t_min, t_max, t_step ):
-            
-            # Compute Archimedean spiral. i.e. A strait line in polar space.
-            
-            r = a*t + b
-            
-            # Compute turn count.
-            
-            t = t * turn_count
-            
-            # Compute phase shift for current spiral arm.
-            
-            t += t_phase
-            
-            # Generate random variables.
-            
-            rt =       np.random.normal ( MU, sigma )
-            rr = abs ( np.random.normal ( MU, sigma ) )
-            
-                        
-            # Apply Gausian distortion.
-            
-            t += rt
-            r += rr
-                    
-            # Scale polar r axis.
-            
-            r *= r_scale
-                    
-            # Perform polar to cartesian projection. (x,y) <- (t,r).        
-            
-            x, y = polar_to_cartesian_projection ( t, r )
-            
-            # Translate geometry.
-            
-            x += xd
-            y += yd
-            
-            # Add marker blobs.
-            
-            if MARKER_CLUSTERS_ENABLED:
-                if ( t_phase >= t_phase_min ) and ( t_phase < t_phase_step ):
-                    
-                    t_range = 0.005
-                    tm0     = 0.75                
-                    tm1     = 1.0
-                    tm2     = 1.25
-                    m_count = 1000
-                    m_sigma = 0.05
-                    
-                    if not marker_cluster_generated[0]:
-                        if ( t >= tm0 - t_range ) and ( t < tm0 + t_range ):
-                            data = generate_data_gausian_cluster ( data, x, y, m_sigma, m_count )
-                            marker_cluster_generated[0] = True
-                        
-                    if not marker_cluster_generated[1]:
-                        if ( t >= tm1 - t_range ) and ( t < tm1 + t_range ):
-                            data = generate_data_random_gausian_clusters ( data = data, x = x, y = y, radius = 0.05, sigma_min = 0.008, sigma_max = 0.016, cluster_count = 16, data_count = 400 )
-                            marker_cluster_generated[1] = True
-                    
-                    if not marker_cluster_generated[2]:  
-                        if ( t >= tm2 - t_range ) and ( t < tm2 + t_range ):
-                            data = generate_data_gausian_ring_formation ( data, x, y, 0.025, 0.075, 0.003, 3, 600 )
-                            marker_cluster_generated[2] = True
-            
-            # Generate data point.
-            
-            data.append ( [ x, y ] )        
+def test_data_2 ( data, labels):
         
-    return data
+    # Initialize local variables.    
+    
+    data_count = int ( 1000 * 4.0 )
+    p          = 2.0
+    q          = 3.0
+    sigma      = 0.33
+    R          = 0.75
+    
+    # Generage data.
+    
+    data_x = []
+    data_x = generate_gausian_torus_knot ( data_x, p, q, R, sigma, data_count )   
+    data_x = transform_data_rotate       ( data_x,  0.0, 0.0, 0.0 )
+    data_x = transform_data_displace     ( data_x,  0.0, 0.0, 0.0 )
+    data   = data_x
+    
+    data_y = [ [ 0 ] ] * data_count     
+    labels = data_y
 
-# Function: Generate Gausian cluster.
+    
+    # Return data.
+    
+    return data, labels
+    
+# FUNCTION: Test data 3 - Duel Torus knots.
 
-def generate_data_gausian_cluster ( data, xd, yd, sigma, data_count ):
-    
-    # Local data.
-    
-    mu = 0.0        
+def test_data_3 ( data, labels):
         
-    # Generate data    
+    # Initialize local variables.    
     
-    for i in range ( data_count ):
-        
-        x_variance = 0.5 * np.random.normal ( mu, sigma )
-        y_variance = 0.5 * np.random.normal ( mu, sigma )
-        
-        x = xd + x_variance
-        y = yd + y_variance
-        
-        data.append ( [ x, y ] )
+    data_count = int ( 1000 * 1.0 )
+    p          = 2.0
+    q          = 3.0
+    sigma      = 0.5
+    R          = 0.75
     
-    return data
+    # Generage data.
     
-# Function: Generae randome gausian clusters.
+    s      = [1,1,1]
+    data_x = []    
+    data_x = generate_gausian_torus_knot ( data_x, p, q, R, s, sigma, data_count )   
+    data_x = transform_data_rotate       ( data_x,  0.0, 0.0, 0.0 )
+    data_x = transform_data_displace     ( data_x,  0.0, 0.0, 0.0 )
+    data   = data_x
     
-def generate_data_random_gausian_clusters ( data, x, y, radius, sigma_min, sigma_max, cluster_count, data_count ):
+    data_y = [ [ 0 ] ] * data_count     
+    labels = data_y
     
-    # Validate data inputs.
+    s      = [-1,1,-1]
+    data_x = []
+    data_x = generate_gausian_torus_knot ( data_x, p, q, R, s, sigma, data_count )   
+    data_x = transform_data_rotate       ( data_x,  0.0, 0.0, 0.0 )
+    data_x = transform_data_displace     ( data_x,  0.0, 0.0, 0.0 )
+    data   = np.concatenate ( ( data, data_x ), axis = 0 )
     
-    if radius < 0.0:
-        radius = 0.0
+    data_y = [ [ 1 ] ] * data_count     
+    labels = np.concatenate ( ( labels, data_y ), axis = 0 )
     
-    if sigma_min < 0.0:
-        sigma_min = 0.0
+    # Return data.
     
-    if sigma_max < sigma_min:
-        sigma_max = sigma_min
-        
-    if ( cluster_count < 0.0 ):
-        cluster_count = 0.0
+    return data, labels
 
-    if ( data_count < 0.0 ):
-        data_count = 0.0
-    
-    # Convert integer counts to reals for use in floating point computations.
+# FUNCTION: Test data 4 - Matryoshka Torus manifold.
 
-    dn  = float ( data_count )    
-    cn  = float ( cluster_count )
+def test_data_4 ( data, labels ):
+        
+    # Initialize local variables.  
+        
+    duel_manifold = True
     
-    # Compute the number of data points per clister.    
+    data_count = int ( 1000 * 0.5 )
+    sigma      = 0.025
+    R          = 0.75
+    r          = 0.25
     
-    dcn = dn / cn
+    # Generage data.
     
+    # 1/2
+    
+    data_x = []
+    data_x = generate_gausian_torus_manifold  ( data_x, R, r, sigma, data_count )    
+    data_x = transform_data_rotate            ( data_x,  0.0, 0.0, 0.0 )
+    data_x = transform_data_displace          ( data_x,  0.0, 0.0, 0.0 )
+    data   = data_x
+    
+    data_y = [ [ 0 ] ] * data_count     
+    labels = data_y
+    
+    # 2/2    
+    
+    if duel_manifold:     
+    
+        data_x = []
+        data_x = generate_gausian_torus_manifold  ( data_x, R, r/2.0, sigma, data_count )    
+        data_x = transform_data_rotate            ( data_x,  0.0, 0.0, 0.0 )
+        data_x = transform_data_displace          ( data_x,  0.0, 0.0, 0.0 )
+        data   = np.concatenate ( ( data, data_x ), axis = 0 )
+        
+        data_y = [ [ 1 ] ] * data_count     
+        labels = np.concatenate ( ( labels, data_y ), axis = 0 )
+
+    # Return data.
+    
+    return data, labels
+    
+# FUNCTION: Test data 4 - Geosphere.
+
+def test_data_5 ( data, labels ):
+        
+    # Initialize local variables.  
+    
+    data_count = int ( 1000 * 1 )
+    sigma      = 0.1
+    R          = 0.75
+    r          = 0.1
+    
+    # Generage data.
+    
+    # 1/3
+    
+    data_x = []
+    data_x = generate_gausian_torus           ( data_x, R, sigma, data_count )    
+    data_x = transform_data_rotate            ( data_x,  0.0, 0.0, 0.0 )
+    data_x = transform_data_displace          ( data_x,  0.0, 0.0, 0.0 )
+    data   = data_x
+    
+    data_y = [ [ 0 ] ] * data_count     
+    labels = data_y
+    
+    # 2/3    
+    
+    data_x = []
+    data_x = generate_gausian_torus           ( data_x, R, sigma, data_count )    
+    data_x = transform_data_rotate            ( data_x,  0.25, 0.0, 0.0 )
+    data_x = transform_data_displace          ( data_x,  0.0, 0.0, 0.0 )
+    data   = np.concatenate ( ( data, data_x ), axis = 0 )
+    
+    data_y = [ [ 0 ] ] * data_count     
+    labels = np.concatenate ( ( labels, data_y ), axis = 0 )
+
+    # 3/3    
+    
+    data_x = []
+    data_x = generate_gausian_torus           ( data_x, R, sigma, data_count )    
+    data_x = transform_data_rotate            ( data_x,  0.0, 0.25, 0.0 )
+    data_x = transform_data_displace          ( data_x,  0.0, 0.0,  0.0 )
+    data   = np.concatenate ( ( data, data_x ), axis = 0 )
+    
+    data_y = [ [ 0 ] ] * data_count     
+    labels = np.concatenate ( ( labels, data_y ), axis = 0 )
+
+    # Return data.
+    
+    return data, labels
+
+
+# FUNCTION: Generate_gausian_torus
+
+def generate_gausian_torus ( data, R, sigma, data_count ):
+    
+    # local variables.
+    
+    pi = math.pi
+    mu = 0.0
+        
     # Generate data.
     
-    for ci in range ( cluster_count ):
-        
-        # compute random locaton for data cluster.
-        
-        xr = radius * ( 2.0 * np.random.random() - 1.0 )
-        yr = radius * ( 2.0 * np.random.random() - 1.0 )
-        
-        # Compute random sigma.
-        
-        sr = sigma_min + ( sigma_max - sigma_min ) * np.random.random()
-        
-        # Generate gausian distribution.
-        
-        xd = x + xr 
-        yd = y + yr
-        
-        data = generate_data_gausian_cluster ( data, xd, yd, sr, int ( round ( dcn ) ) )
+    ti = 2.0 * pi / data_count    
     
-    # return data to caller.
+    for t in np.arange ( 0.0, 2.0 * pi, ti ):
+        
+        # Compute random parameters.
+        
+        r = np.random.normal ( mu, sigma )    # Poloidal radius
+        s = 2.0 * pi * np.random.random ()    # Toroidal angle.
+
+        # Compute radial coeficient.        
+
+        a = ( R + r * math.cos ( s ) )        
+        
+        # Cmopute torus.        
+        
+        x = a * math.cos ( t )
+        y = a * math.sin ( t )
+        z = r * math.sin ( s )
+        
+        # Add point to data set.        
+        
+        data.append ( [ x, y, z ] )           
     
     return data
-    
 
-# Function: Generate Gausian ring cluster.
+# FUNCTION: generate_gausian_torus_manifold
 
-def generate_data_gausian_ring ( data, x, y, radius, sigma, data_count ):
+def generate_gausian_torus_manifold ( data, R, r, sigma, data_count ):
     
-    # local constants
+    # local variables.
     
-    PI = math.pi    
-    
-    # Local data.
-    
-    mu = 0.0    
+    pi = math.pi
+    mu = 0.0
         
-    # General outer cluster.
+    # Generate data.
+    
+    ti = 2.0 * pi / data_count    
+    
+    for t in np.arange ( 0.0, 2.0 * pi, ti ):
+        
+        # Compute random parameters.
+        
+        rs = np.random.normal ( mu, sigma )    # Poloidal radius
+        s  = 2.0 * pi * np.random.random ()    # Toroidal angle.
+
+        # Compute radial coeficient.        
+
+        a = ( R + ( r + rs ) * math.cos ( s ) )        
+        
+        # Cmopute torus.        
+        
+        x = a * math.cos ( t )
+        y = a * math.sin ( t )
+        z = ( r + rs ) * math.sin ( s )
+        
+        # Add point to data set.        
+        
+        data.append ( [ x, y, z ] )           
+    
+    return data
+
+# FUNCTION: generate_gausian_torus_knot
+
+def generate_gausian_torus_knot ( data, p, q, R, s, sigma, data_count ):
+    
+    # local variables.
+    
+    pi = math.pi
+    mu = 0.0
+        
+    # Generate data.
+        
+    ti = 2.0 * pi / data_count
+    
+    for t in np.arange ( 0.0, 2.0 * pi, ti ):
+
+        # Compute radial coeficient.        
+
+        a = R + math.cos ( q * t ) + 4.0
+        
+        # Cmopute torus.        
+        
+        x =  s[0] * ( a * math.cos ( p * t ) - 3.0 * math.cos ( ( p - q ) * t ) )
+        y =  s[1] * ( a * math.sin ( p * t ) - 3.0 * math.sin ( ( p - q ) * t ) )
+        z =  s[2] * ( 4.0 * math.sin ( q * t ) )
+        
+        # Compute random displacement.
+        
+        xn = np.random.normal ( mu, sigma )
+        yn = np.random.normal ( mu, sigma )
+        zn = np.random.normal ( mu, sigma )
+        
+        x += xn
+        y += yn
+        z += zn
+        
+        # Add point to data set.        
+        
+        data.append ( [ x, y, z ] ) 
+
+    # Normalize data.
+
+    max_abs_scaler  = preprocessing.MaxAbsScaler()
+    data_normalized = max_abs_scaler.fit_transform ( data )
+        
+    return data_normalized
+
+# FUNCTION: transform_data_displace
+
+def transform_data_displace ( data, xd, yd, zd ):
+    
+    # Get data count.
+    
+    data_count = len ( data )    
+    
+    # Compute data transformation.
     
     for i in range ( data_count ):
         
-        random_angle    = 2.0 * PI * np.random.random ()
-        radius_variance = radius + np.random.normal ( mu, sigma )
-                
-        xd = x + radius_variance * math.sin ( random_angle )
-        yd = y + radius_variance * math.cos ( random_angle )
-        
-        data.append ( [ xd, yd ] )    
+        data[i][0] += xd
+        data[i][1] += yd
+        data[i][2] += zd
     
     return data
 
-# Function: Generate Gausian ring formation.
+# FUNCTION: transform_data_rotate
 
-def generate_data_gausian_ring_formation ( data, x, y, radius_min, radius_max, sigma, cluster_count, data_count ):
+def transform_data_rotate ( data, pitch, yaw, roll ):
     
-    # local constants
+    # local constants.
     
-    PI = math.pi  
+    pi = math.pi
     
-    # Validate input parameters.
+    # Get data count.
+    
+    data_count = len ( data )   
+    
+    # Convert angles to radians.
+    
+    pitch = 2.0 * pi * pitch
+    yaw   = 2.0 * pi * yaw
+    roll  = 2.0 * pi * roll
+    
+    # Compute data transformation.
+    
+    for i in range ( data_count ):
+        
+        # Read data.
+        
+        x = data[i][0]
+        y = data[i][1]
+        z = data[i][2]
+        
+        # Compute pitch (x).
+        
+        yt =  y * math.cos ( pitch ) + z * math.sin ( pitch )
+        zt = -y * math.sin ( pitch ) + z * math.cos ( pitch )
+        y  = yt
+        z  = zt
 
-    if ( radius_min > radius_max ):
-        radius_max = radius_min
+        # Compute yaw (y).
 
-    if data_count < 0:
-        data_count = 0
+        xt =  x * math.cos ( yaw ) + z * math.sin ( yaw )
+        zt = -x * math.sin ( yaw ) + z * math.cos ( yaw )
+        x  = xt
+        z  = zt
 
-    if cluster_count <= 0:
-        cluster_count = 1
+        # Compute roll (z).
+
+        xt =  x * math.cos ( roll ) + y * math.sin ( roll )
+        yt = -x * math.sin ( roll ) + y * math.cos ( roll )        
+        x  = xt
+        y  = yt
         
-    # Compute radius step size.
-    
-    if cluster_count > 1:
-        radius_step  = ( radius_max - radius_min ) / ( cluster_count - 1 )
-    else:
-        radius_step = 0.0
-    
-    # Generate cluster data.
-    
-    radius = radius_min
-    
-    if radius_min > 0:
+        # Update data.        
         
-        # If the minimum radius is greater than 0, then we will not include a cantral gausian distribution cluster.
-        # - As such, the cluster data count factor is computerd diferently, because it excludes consideration
-        #   for the a cantral gausian distribution cluster, who's data count is computered difrently to the rest
-        #   of the gausian ring clusters.
-        
-        # Compute the data count factor used, to compute the number of datapoints to include in each concentric cluster.
-        
-        nc = float ( cluster_count )
-        nd = float ( data_count )
-        
-        cluster_data_count_factor = nd / ( 0.5 * nc * ( nc + 1.0 ) )
-        
-        # Generate clusters.
-        
-        for cluster_index in range ( cluster_count ):
-            
-            # Compute the number of data points to include in this cluster.
-            
-            i = float ( cluster_index )
-            
-            cluster_data_count = ( i + 1 ) * cluster_data_count_factor
-            
-            # Generate cluster data.
-            
-            data = generate_data_gausian_ring ( data, x, y, radius, sigma, int ( round ( cluster_data_count ) ) )
-            
-            # Update radius for next concentric cluster.
-            
-            radius += radius_step        
-    else:
-        
-        # If the minimum radius is zero, then we  shall include a cantral Gausian distribution.
-        # - As such, our computation for the cluster data count factor will be altered to acomodate the
-        #   number of data samples to generate for the central cluster, as the central cluster data 
-        #   count is computered diferently.
-        
-        # Compute the data count factor used, to compute the number of datapoints to include in each concentric cluster.
-        
-        nc = float ( cluster_count )
-        nd = float ( data_count )
-        
-        if nc * ( PI * nc + 1.0 ) != PI * nc:        
-            cluster_data_count_factor = ( 2.0 * PI * nd ) / ( PI * nc**2 - PI * nc + nc )
-        else:
-            cluster_data_count_factor = 0
-            
-        # Generate clusters.
-            
-        for cluster_index in range ( cluster_count ):
-            
-            # Compute the number of data points to include in this cluster.
-            
-            i = float ( cluster_index )
-            
-            cluster_data_count = cluster_data_count_factor / ( 2.0 * PI ) + i * cluster_data_count_factor
-            
-            # Generate cluster data.            
-            
-            if cluster_index > 0:                            
-                sigma_scale = 1.0
-                data        = generate_data_gausian_ring ( data, x, y, radius, sigma * sigma_scale, int ( round ( cluster_data_count ) ) )
-            else:                                
-                sigma_scale = 2.0
-                data        = generate_data_gausian_cluster ( data, x, y, sigma * sigma_scale, int ( round ( cluster_data_count ) ) )
-            
-            # Update radius for next concentric cluster.
-            
-            radius += radius_step     
-        
-    # Return data.
+        data[i][0] = x
+        data[i][1] = y
+        data[i][2] = z
     
     return data
