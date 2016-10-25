@@ -10,29 +10,65 @@ from sklearn import preprocessing
 
 # application imports.
 
-from data_generator     import generate_test_data
-from data_visualization import plot_data_2d, plot_data_3d
+from data_generator      import generate_test_data
+from data_visualization  import plot_data_2d, plot_data_3d
+from sklearn.ensemble    import GradientBoostingClassifier
+from sklearn             import cross_validation, metrics
+from sklearn.grid_search import GridSearchCV 
 
 # FUNCTION: sound.
 
 def sound ( f, p, n  ):
     for i in range ( n ):
         winsound.Beep ( f, p )
-    
 
-# Function: Main program function.    
+# FUNCTION: Compute dimentionality reduction embeddling.
+
+def compute_dimentionality_reduction_embedding ( x, y ):
+    
+    print ( '\nComputing dimentionality reduction embedding.\n' )
+            
+    perplexity   = 20
+    n_components = 3
+    
+    embedding = manifold.TSNE ( n_components = n_components, perplexity = perplexity, init = 'pca', random_state = 0  )    
+    x_tSNE    = embedding.fit_transform ( x )
+   
+    # Normalize data.
+
+    max_abs_scaler    = preprocessing.MaxAbsScaler()
+    x_tSNE_normalized = max_abs_scaler.fit_transform ( x_tSNE )            
+    
+    if n_components == 2:
+        plot_data_2d ( x_tSNE_normalized, y, markersize = 2, alpha = 1.0, auto_limit_enabled = False )
+        
+    elif n_components == 3:
+        plot_data_3d ( x_tSNE_normalized, y )
+        
+    return x_tSNE_normalized
+
+# FUNCTION: fit the model.
+
+def modelfit ( model, x, y, performCV = True, printFeatureImportance = True, cv_folds = 5 ):
+    
+    # Fit the algorithm on the data
+    
+    model.fit ( x, y[:,0] )    
+
+# FUNCTION: Main program function.    
     
 def main ():
     
     # Initialize program.
     
     time_start = time.time() 
-    print ( '\nInitialize Program.\n' )          
+    print ( '\nInitialize Program.' )          
     sound ( 10000, 80, 1 )
     
     # Configure data parameters.
     
-    embedding_enabled = True
+    training_enabled       = True
+    normalise_input_data   = False
     
     # Generate data.    
     
@@ -41,44 +77,37 @@ def main ():
        
     data, labels = generate_test_data ( data, labels )
     
-    # Plot data
+    # Normalise data.
+    
+    if normalise_input_data:
+        max_abs_scaler  = preprocessing.MaxAbsScaler()
+        data            = max_abs_scaler.fit_transform ( data )
+    
+    # Convert data to Numpy format.
+    
+    xt = np.array ( data   )
+    yt = np.array ( labels )    
+    
+    # Only begin training sequence, if there is data.
     
     if ( len ( data ) > 0 ):
         
         # Plot untransformed data
         
-        np_data   = np.array ( data   )
-        np_lables = np.array ( labels )
-        plot_data_3d ( np_data, np_lables )
+        plot_data_3d ( xt, yt )
         
-        # Learn manifolds.
+        # Begin training sequence..
         
-        if embedding_enabled:
+        if training_enabled:
             
-            print ( '\nComputing dimentionality reduction embedding.\n' )
+            # learn t-SNE embedding.
             
-            perplexity   = 20
-            n_components = 2
+            compute_dimentionality_reduction_embedding ( xt, yt )            
             
-            embedding = manifold.TSNE ( n_components = n_components, perplexity = perplexity, init = 'pca', random_state = 0  )
+            #model = GradientBoostingClassifier ()
             
-            x      = data
-            x_tSNE = embedding.fit_transform ( x )
+            #modelfit ( model, xt, yt )
             
-            # Convert data format to Numpy array.
-            
-            np_data = np.array ( x_tSNE )
-            
-            # Normalize data.
-
-            max_abs_scaler  = preprocessing.MaxAbsScaler()
-            data_normalized = max_abs_scaler.fit_transform ( np_data )            
-            
-            if n_components == 2:
-                plot_data_2d ( np_data, np_lables, markersize = 2, alpha = 1.0, auto_limit_enabled = False )
-                
-            elif n_components == 3:
-                plot_data_3d ( data_normalized, np_lables )
     
     else:
         print ( 'WARNING: No data.\n' )
