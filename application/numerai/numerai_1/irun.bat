@@ -3,7 +3,7 @@ sound  8000  80
 sound  12000 80
 sound  10000 100
 cls
-ipython numerai_5_gradient_boost.py
+ipython numerai_6_gradient_boost.py
 sound  12000 80
 sound  8000  80
 sound  600   100

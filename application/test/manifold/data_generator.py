@@ -9,7 +9,7 @@ from sklearn import preprocessing
 
 def generate_test_data ( data, labels ):
     
-    test_case = 4
+    test_case = 6
     
     if test_case == 1:      # Two rings.
         data, labels = test_data_1 ( data, labels)
@@ -24,7 +24,10 @@ def generate_test_data ( data, labels ):
         data, labels = test_data_4 ( data, labels)        
 
     elif test_case == 5:    # Geosphere.
-        data, labels = test_data_5 ( data, labels)        
+        data, labels = test_data_5 ( data, labels)
+
+    elif test_case == 6:    # Geosphere.
+        data, labels = test_data_6 ( data, labels)
     
     else:
         print ( 'WARNING: No test case selected.\n' )
@@ -143,7 +146,7 @@ def test_data_4 ( data, labels ):
     duel_manifold = True
     
     data_count = int ( 1000 * 0.5 )
-    sigma      = 0.025
+    sigma      = 0.001
     R          = 0.75
     r          = 0.25
     
@@ -186,7 +189,6 @@ def test_data_5 ( data, labels ):
     data_count = int ( 1000 * 1 )
     sigma      = 0.1
     R          = 0.75
-    r          = 0.1
     
     # Generage data.
     
@@ -227,6 +229,51 @@ def test_data_5 ( data, labels ):
     
     return data, labels
 
+
+# FUNCTION: Test data 6 - Geosphere.
+
+def test_data_6 ( data, labels ):
+        
+    # Initialize local variables.  
+        
+    duel_manifold = True
+    n             = 4.0
+    R             = 0.75
+    r             = 0.25
+    Rn            = n * 22.0 
+    rn            = n * 7.0
+    sigma         = 0.01
+    data_count    = int ( Rn * rn )
+    
+    # Generage data.
+    
+    # 1/2
+    
+    data_x = []
+    data_x = generate_regular_gausian_torus_manifold  ( data_x, R, r, Rn, rn, sigma )    
+    data_x = transform_data_rotate                    ( data_x,  0.0, 0.0, 0.0 )
+    data_x = transform_data_displace                  ( data_x,  0.0, 0.0, 0.0 )
+    data   = data_x
+    
+    data_y = [ [ 0 ] ] * data_count     
+    labels = data_y
+    
+    # 2/2    
+    
+    if duel_manifold:     
+    
+        data_x = []
+        data_x = generate_regular_gausian_torus_manifold  ( data_x, R, r/2.0,  Rn, rn, sigma )    
+        data_x = transform_data_rotate                    ( data_x,  0.0, 0.0, 0.0 )
+        data_x = transform_data_displace                  ( data_x,  0.0, 0.0, 0.0 )
+        data   = np.concatenate ( ( data, data_x ), axis = 0 )
+        
+        data_y = [ [ 1 ] ] * data_count     
+        labels = np.concatenate ( ( labels, data_y ), axis = 0 )
+
+    # Return data.
+    
+    return data, labels
 
 # FUNCTION: Generate_gausian_torus
 
@@ -297,6 +344,50 @@ def generate_gausian_torus_manifold ( data, R, r, sigma, data_count ):
         # Add point to data set.        
         
         data.append ( [ x, y, z ] )           
+    
+    return data
+
+# FUNCTION: generate_gausian_torus_manifold
+
+def generate_regular_gausian_torus_manifold ( data, R, r, Rn, rn, sigma ):
+    
+    # local variables.
+    
+    pi = math.pi
+    mu = 0.0
+        
+    # Generate data.
+    
+    ti = 2.0 * pi / Rn
+    si = 2.0 * pi / rn     
+    
+    for t in np.arange ( 0.0, 2.0 * pi, ti ):
+        
+        for s in np.arange ( 0.0, 2.0 * pi, si ):
+            
+            # Compute radial coeficient.        
+    
+            a = R + r * math.cos ( s )        
+            
+            # Cmopute torus.        
+            
+            x = a * math.cos ( t )
+            y = a * math.sin ( t )
+            z = r * math.sin ( s )
+            
+            # Compute random displacement.
+        
+            xn = np.random.normal ( mu, sigma )
+            yn = np.random.normal ( mu, sigma )
+            zn = np.random.normal ( mu, sigma )
+            
+            x += xn
+            y += yn
+            z += zn
+            
+            # Add point to data set.        
+            
+            data.append ( [ x, y, z ] )
     
     return data
 

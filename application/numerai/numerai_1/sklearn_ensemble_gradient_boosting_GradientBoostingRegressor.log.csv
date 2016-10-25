@@ -72,3 +72,11 @@ date,time,training_time,log_loss,accuracy,subsample,verbose,n_estimators,learnin
 2016-09-26,01:20:32.274502,0:00:32.786,0.68982,53.4,3,1.0,0.009,400,None,0.9,2,False,4,754,0,auto,0.0,None,ls,1,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
 2016-09-26,01:23:50.321069,0:02:23.553,0.68980,53.5,3,1.0,0.009,400,None,0.9,2,False,4,343,0,auto,0.0,None,ls,1,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
 2016-10-01,21:33:24.725584,0:04:04.046,0.68975,53.4,573,0.9,3,1,ls,None,2,0.009,False,auto,400,None,0.0,1.0,0,4,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-10-03,01:44:05.243266,0:00:53.130,0.68976,53.4,2,None,400,0.9,0.009,1.0,3,0,auto,1,4,None,False,608,ls,0.0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-10-06,01:09:45.382955,0:04:02.017,0.68975,53.5,2,3,1,None,4,0,False,1.0,None,510,0.0,auto,ls,400,0.9,0.009,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-10-06,08:11:26.820243,0:05:27.454,0.68978,53.6,2,3,1,None,4,0,False,1.0,None,460,0.0,auto,ls,400,0.9,0.009,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-10-06,08:30:15.472297,0:04:10.220,0.68977,53.6,2,3,1,None,4,0,False,1.0,None,671,0.0,auto,ls,400,0.9,0.009,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-10-07,17:51:31.729973,0:06:48.874,0.68977,53.6,0.009,3,0.0,4,0,False,auto,0.9,1.0,None,569,400,2,1,None,ls,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-10-08,10:27:32.403831,0:06:04.214,0.68977,53.6,0.009,3,0.0,auto,None,383,None,4,0,1,2,400,0.9,False,1.0,ls,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-10-13,08:22:09.104835,0:10:16.533,0.68977,53.6,0.9,400,4,None,auto,1.0,ls,0.009,3,1,None,2,0.0,False,432,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-10-20,02:14:32.783204,0:05:16.888,0.68979,53.5,400,False,4,1.0,49,None,ls,0,0.0,None,0.009,auto,3,2,1,0.9,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor

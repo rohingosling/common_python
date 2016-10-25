@@ -22,7 +22,7 @@ if not hasattr(Axis, "_get_coord_info_old"):
 
 # Global Constants.
 
-MARKER_SIZE_GLOBAL = 12
+MARKER_SIZE_GLOBAL = 8
 MARKER_SIZE_2D     = MARKER_SIZE_GLOBAL
 MARKER_SIZE_3D     = MARKER_SIZE_GLOBAL
 
