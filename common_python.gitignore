@@ -4,8 +4,7 @@ __pycache__/
 *$py.class
 
 # Common Python
-
-application/numerai/data/*.csv
+/application/numerai/data/*.csv
 
 # C extensions
 *.so
