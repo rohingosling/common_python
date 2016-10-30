@@ -69,7 +69,9 @@ class Constant ( object ):
         
     class Application ( object ):
         
-        TRAINING_ENABLED = True
+        PARAMETER_OPTIMIZATION_ENABELED = False
+        CROSS_VALIDATION_ENABLED        = True
+        TRAINING_ENABLED                = True
         
     
     # Model parameters        
@@ -78,19 +80,19 @@ class Constant ( object ):
         
         # Training control parameters.
         
-        #TRAINING_DATA_LIMIT = 100 
+        #TRAINING_DATA_LIMIT = 1000 
         TRAINING_DATA_LIMIT = -1
         METRIC              = 'logloss'
         
         # XGBClassifier
         
-        LEARNING_RATE    = 0.005
-        N_ESTIMATORS     = 2000
-        MAX_DEPTH        = 3
-        MIN_CHILD_WEIGHT = 1
+        LEARNING_RATE    = 0.001
+        N_ESTIMATORS     = 4000
+        MAX_DEPTH        = 1
+        MIN_CHILD_WEIGHT = 8
         GAMMA            = 0
-        SUBSAMPLE        = 0.25
-        COLSAMPLE_BYTREE = 0.25
+        SUBSAMPLE        = 0.8
+        COLSAMPLE_BYTREE = 0.8
         OBJECTIVE        = 'binary:logistic'
         SCALE_POS_WEIGHT = 1
         SEED             = 1

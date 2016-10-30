@@ -15,6 +15,7 @@
 import winsound
 import time
 import datetime
+import sys
 
 import pandas           as pd
 import numpy            as np
@@ -106,7 +107,8 @@ def parameter_search ():
     
     # Parameter search parameters.
     
-    row_count = 100
+    row_count = Constant.Model.TRAINING_DATA_LIMIT
+    #row_count = -1
     
     # Load training data.
     
@@ -123,49 +125,107 @@ def parameter_search ():
 
 def train_and_test ():
     
+    row_count = Constant.Model.TRAINING_DATA_LIMIT
+    
     # Load training data.
     
     training_data_file_name = Constant.Numerai.DataFile.PATH + Constant.Numerai.DataFile.TRAINING
     cols_features           = [ Constant.Numerai.CSV.FEATURE + str ( index ) for index in range ( 1, 22 ) ]
     col_target              = Constant.Numerai.CSV.TARGET
-    training_data           = load_training_data ( training_data_file_name )
+    training_data           = load_training_data ( training_data_file_name, row_count )
     
-    # Initialize parameters.
-    
-    search_divisor = 5
-    
-    row_count_min     = 100
-    row_count_max     = 100
-    row_count_divisor = search_divisor
-    row_count_stride  = ( row_count_max - row_count_min ) / row_count_divisor
-    
-    learning_rate_min     = 0.001
-    learning_rate_max     = 1.0
-    learning_rate_divisor = search_divisor
-    learning_rate_stride  = ( learning_rate_max - learning_rate_min ) / learning_rate_divisor
-    
-    n_estimator_min     = 1
-    n_estimator_max     = 5000
-    n_estimator_divisor = learning_rate_divisor
-    n_estimator_stride  = ( n_estimator_max - n_estimator_min ) / n_estimator_divisor
-    
+    if Constant.Application.PARAMETER_OPTIMIZATION_ENABELED == True:
         
-    # Train and test model.
+        # Initialize parameters.
         
-    model = XGBClassifier (
-        learning_rate    = Constant.Model.LEARNING_RATE,
-        n_estimators     = Constant.Model.N_ESTIMATORS,
-        max_depth        = Constant.Model.MAX_DEPTH,
-        min_child_weight = Constant.Model.MIN_CHILD_WEIGHT,
-        gamma            = Constant.Model.GAMMA,
-        subsample        = Constant.Model.SUBSAMPLE,
-        colsample_bytree = Constant.Model.COLSAMPLE_BYTREE,
-        objective        = Constant.Model.OBJECTIVE,
-        scale_pos_weight = Constant.Model.SCALE_POS_WEIGHT,        
-        seed             = Constant.Model.SEED     
-    )
+        search_divisor = 5
+        
+        row_count_min     = 100
+        row_count_max     = 100
+        row_count_divisor = search_divisor
+        row_count_stride  = ( row_count_max - row_count_min ) / row_count_divisor
+        
+        max_depth_min     = 1
+        max_depth_max     = 9  
+        max_depth_stride  = 1
+        
+        min_child_weight_min     = 1
+        min_child_weight_max     = 9    
+        min_child_weight_stride  = 1
+        
+        learning_rate_min     = 0.001
+        learning_rate_max     = 1.0
+        learning_rate_divisor = search_divisor
+        learning_rate_stride  = ( learning_rate_max - learning_rate_min ) / learning_rate_divisor
+        
+        n_estimator_min     = 1
+        n_estimator_max     = 5000
+        n_estimator_divisor = learning_rate_divisor
+        n_estimator_stride  = ( n_estimator_max - n_estimator_min ) / n_estimator_divisor
+        
+        # Configure grid search.
+        
+        parameter_search_1 = {
+            'max_depth'        : list ( range ( max_depth_min,        max_depth_max,        max_depth_stride        ) ),
+            'min_child_weight' : list ( range ( min_child_weight_min, min_child_weight_max, min_child_weight_stride ) )
+        }
+            
+        # Optimize parameters.
+        
+        grid_search_1 = GridSearchCV (
+        
+            estimator = XGBClassifier (
+                learning_rate    = Constant.Model.LEARNING_RATE,
+                n_estimators     = Constant.Model.N_ESTIMATORS,
+                max_depth        = Constant.Model.MAX_DEPTH,
+                min_child_weight = Constant.Model.MIN_CHILD_WEIGHT,
+                gamma            = Constant.Model.GAMMA,
+                subsample        = Constant.Model.SUBSAMPLE,
+                colsample_bytree = Constant.Model.COLSAMPLE_BYTREE,
+                objective        = Constant.Model.OBJECTIVE,
+                scale_pos_weight = Constant.Model.SCALE_POS_WEIGHT,        
+                seed             = Constant.Model.SEED     
+            ),
+            
+            param_grid = parameter_search_1,
+            scoring    = 'log_loss',
+            n_jobs     = 1,
+            iid        = False,
+            cv         = 3,
+            verbose    = 10
+        )
+        
+        grid_search_1.fit ( training_data [ cols_features ], training_data [ col_target ] )
+        
+        for e in grid_search_1.grid_scores_:
+            print ( str (e) )
     
-    model = train_model ( model, training_data, cols_features, col_target, cross_validation_enabled = True )
+        print ( str ( grid_search_1.best_params_ ) )
+    
+        print ( str ( grid_search_1.best_score_ ) )
+        
+        log ( 'Terminating parameter seach sequence' )
+        sys.exit()
+        
+    # Train the model.
+    
+    if Constant.Application.TRAINING_ENABLED == True:
+        
+        model = XGBClassifier (
+        
+            learning_rate    = Constant.Model.LEARNING_RATE,
+            n_estimators     = Constant.Model.N_ESTIMATORS,
+            max_depth        = Constant.Model.MAX_DEPTH,
+            min_child_weight = Constant.Model.MIN_CHILD_WEIGHT,
+            gamma            = Constant.Model.GAMMA,
+            subsample        = Constant.Model.SUBSAMPLE,
+            colsample_bytree = Constant.Model.COLSAMPLE_BYTREE,
+            objective        = Constant.Model.OBJECTIVE,
+            scale_pos_weight = Constant.Model.SCALE_POS_WEIGHT,        
+            seed             = Constant.Model.SEED     
+        )        
+        
+        model = train_model ( model, training_data, cols_features, col_target, cross_validation_enabled = True )
         
     # Return trained model.
     

@@ -80,3 +80,4 @@ date,time,training_time,log_loss,accuracy,subsample,verbose,n_estimators,learnin
 2016-10-08,10:27:32.403831,0:06:04.214,0.68977,53.6,0.009,3,0.0,auto,None,383,None,4,0,1,2,400,0.9,False,1.0,ls,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
 2016-10-13,08:22:09.104835,0:10:16.533,0.68977,53.6,0.9,400,4,None,auto,1.0,ls,0.009,3,1,None,2,0.0,False,432,0,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
 2016-10-20,02:14:32.783204,0:05:16.888,0.68979,53.5,400,False,4,1.0,49,None,ls,0,0.0,None,0.009,auto,3,2,1,0.9,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
+2016-10-27,05:40:16.351580,0:05:38.838,0.68984,53.3,400,1,False,0.9,0.0,2,370,3,0.009,None,ls,1.0,None,4,0,auto,Numerai Model-5,1.0,sklearn.ensemble.gradient_boosting.GradientBoostingRegressor
