@@ -149,9 +149,9 @@ def train_and_test ():
         max_depth_max     = 9  
         max_depth_stride  = 1
         
-        min_child_weight_min     = 1
-        min_child_weight_max     = 9    
-        min_child_weight_stride  = 1
+        min_child_weight_min    = 1
+        min_child_weight_max    = 9    
+        min_child_weight_stride = 1
         
         learning_rate_min     = 0.001
         learning_rate_max     = 1.0
@@ -268,9 +268,9 @@ def train_model (
             xgb_parameters, 
             xgb_data, 
             num_boost_round       = model.get_params() [ 'n_estimators' ],
-            nfold                 = cross_validation_fold_count,
+            nfold                 = Constant.Model.CROSS_VALIDATION_FOLD_COUNT,
             metrics               = Constant.Model.METRIC,
-            early_stopping_rounds = early_stopping_count,
+            early_stopping_rounds = Constant.Model.EARLY_STOPPING_COUNT,
             verbose_eval          = verbose_eval
         )
         

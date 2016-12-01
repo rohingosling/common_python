@@ -1,1 +1,2 @@
-ipython numerai_1.py
+ipython application_2.py
+

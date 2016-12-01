@@ -65,10 +65,16 @@ def initialize_model ():
         gamma            = Constant.Model.GAMMA,
         subsample        = Constant.Model.SUBSAMPLE,
         colsample_bytree = Constant.Model.COLSAMPLE_BYTREE,
+<<<<<<< HEAD
+=======
+        reg_alpha        = Constant.Model.REG_ALPHA,
+        reg_lambda       = Constant.Model.REG_LAMBDA,
+>>>>>>> dev
         objective        = Constant.Model.OBJECTIVE,
         scale_pos_weight = Constant.Model.SCALE_POS_WEIGHT,        
         seed             = Constant.Model.SEED     
     )
+<<<<<<< HEAD
     
     # Print model parameters.
     
@@ -76,6 +82,15 @@ def initialize_model ():
     
     # Return initialized model.
     
+=======
+    
+    # Print model parameters.
+    
+    print_model_parameters ( model, 1 )
+    
+    # Return initialized model.
+    
+>>>>>>> dev
     return model
 
 #-----------------------------------------------------------------------------
@@ -89,6 +104,7 @@ def train_model ( model ):
     row_count = Constant.Model.TRAINING_DATA_LIMIT
     
     # Begin training sequence.
+<<<<<<< HEAD
     
     log ( 'TRAINING SEQUENCE:' )    
     
@@ -109,6 +125,28 @@ def train_model ( model ):
     
         # Test Model.
     
+=======
+    
+    log ( 'TRAINING SEQUENCE:' )    
+    
+    if Constant.Application.TRAINING_ENABLED:
+    
+        # Compile file names.
+        
+        training_file_name = Constant.Numerai.DataFile.PATH + Constant.Numerai.DataFile.TRAINING    
+        
+        # Load training data.
+        
+        x, t = load_training_data ( training_file_name, row_count ) 
+        
+        # Initialize, optimize and train mode.        
+        
+        model = optimize_model_parameters ( model, x, t )
+        model = fit_model                 ( model, x, t )
+    
+        # Test Model.
+    
+>>>>>>> dev
         accuracy, auc, logloss = test_model ( model, x, t)
         
         # Report training results.
@@ -250,12 +288,37 @@ def optimize_regularization_parameters ( model, x, t ):
     indent = 3
     
     log ( 'Optimizing max depth and min child weight:', indent = indent )
+<<<<<<< HEAD
             
     # Configure grid search.
     
     parameter_search_1 = {
         'reg_alpha'  : [ x for x in range ( 3, 7+1, 1 ) ],
         'reg_lambda' : [ (0.5-0.1)+(x*0.1) for x in range ( 1, 7+1, 1 ) ]
+=======
+       
+    # Initialize grid search parameters.
+
+    reg_alpha_locus              =  5.0
+    reg_alpha_min_index          = -3
+    reg_alpha_max_index          =  3    
+    reg_alpha_index_stride_scale =  0.5
+    reg_alpha_index_range        = range ( reg_alpha_min_index, reg_alpha_max_index + 1, 1 )
+    reg_alpha_search_domain      = [ reg_alpha_locus + ( x * reg_alpha_index_stride_scale ) for x in reg_alpha_index_range ]
+    
+    reg_lambda_locus              =  1.0
+    reg_lambda_min_index          = -5
+    reg_lambda_max_index          =  1    
+    reg_lambda_index_stride_scale =  0.1
+    reg_lambda_index_range        = range ( reg_lambda_min_index, reg_lambda_max_index + 1, 1 )
+    reg_lambda_search_domain      = [ reg_lambda_locus + ( x * reg_lambda_index_stride_scale ) for x in reg_lambda_index_range ]
+       
+    # Configure grid search.
+    
+    parameter_search_1 = {
+        'reg_alpha'  : reg_alpha_search_domain,
+        'reg_lambda' : reg_lambda_search_domain
+>>>>>>> dev
     }
      
     # Perform grid search.
@@ -292,6 +355,7 @@ def optimize_regularization_parameters ( model, x, t ):
     
     reg_alpha  = grid_search_1.best_params_ [ 'reg_alpha'  ]
     reg_lambda = grid_search_1.best_params_ [ 'reg_lambda' ]
+<<<<<<< HEAD
     
     log ( 'Optimal regularization alpha  = ' + str ( reg_alpha                  ), indent = indent+1 )
     log ( 'Optimal regularization lambda = ' + str ( reg_lambda                 ), indent = indent+1 )
@@ -306,11 +370,33 @@ def optimize_regularization_parameters ( model, x, t ):
     
     return model
 
+=======
+    
+    log ( 'Optimal regularization alpha  = ' + str ( reg_alpha                  ), indent = indent+1 )
+    log ( 'Optimal regularization lambda = ' + str ( reg_lambda                 ), indent = indent+1 )
+    log ( 'Best Score                    = ' + str ( grid_search_1.best_score_  ), indent = indent+1 )
+        
+    # update model using optimized parameters.
+    
+    model.set_params ( reg_alpha  = reg_alpha )
+    model.set_params ( reg_lambda = reg_lambda )
+    
+    # Return updated model.
+    
+    return model
+>>>>>>> dev
 
 #-----------------------------------------------------------------------------
 # FUNCTION: Optimize min_child_weight and max_depth
 #-----------------------------------------------------------------------------
 
+<<<<<<< HEAD
+=======
+#-----------------------------------------------------------------------------
+# FUNCTION: Optimize min_child_weight and max_depth
+#-----------------------------------------------------------------------------
+
+>>>>>>> dev
 def optimize_max_depth_and_min_child_weight ( model, x, t ):
     
     # Local variables.
@@ -433,12 +519,100 @@ def optimize_gamma ( model, x, t ):
     
     log ( 'Optimal gamma = ' + str ( optimal_gamma ), indent = indent+1 )
     log ( 'Logloss       = ' + str ( logloss_min   ), indent = indent+1 )
+<<<<<<< HEAD
+=======
 
     # Return updated model.    
     
     return model
 
 #-----------------------------------------------------------------------------
+# FUNCTION: Optimize sub sample and column sample by tree.
+#-----------------------------------------------------------------------------
+
+def optimize_subsample_and_colsample_bytree ( model, x, t ):
+    
+    # Local variables.
+    
+    indent = 3
+    
+    log ( 'Optimizing sub-sample and column sample by tree:', indent = indent )
+    
+    # Initialize ssearch parameters.
+    
+    subsample_min    = 0.1
+    subsample_max    = 0.4  
+    subsample_stride = 0.01
+    
+    colsample_bytree_min    = 0.05
+    colsample_bytree_max    = 0.1    
+    colsample_bytree_stride = 0.01
+    
+    # Configure grid search.
+    
+    parameter_search_1 = {
+        'subsample'        : np.arange ( subsample_min,        subsample_max,        subsample_stride        ),
+        'colsample_bytree' : np.arange ( colsample_bytree_min, colsample_bytree_max, colsample_bytree_stride )
+    }
+     
+    # Perform grid search.
+    
+    grid_search_1 = GridSearchCV (
+    
+        estimator = XGBClassifier (
+            learning_rate    = Constant.Model.LEARNING_RATE,
+            n_estimators     = Constant.Model.N_ESTIMATORS,
+            max_depth        = Constant.Model.MAX_DEPTH,
+            min_child_weight = Constant.Model.MIN_CHILD_WEIGHT,
+            gamma            = Constant.Model.GAMMA,
+            subsample        = Constant.Model.SUBSAMPLE,
+            colsample_bytree = Constant.Model.COLSAMPLE_BYTREE,
+            objective        = Constant.Model.OBJECTIVE,
+            scale_pos_weight = Constant.Model.SCALE_POS_WEIGHT,        
+            seed             = Constant.Model.SEED     
+        ),
+        
+        param_grid = parameter_search_1,
+        scoring    = Constant.Model.GridSearch.Tree.SCORING,
+        cv         = Constant.Model.GridSearch.Tree.CV,
+        verbose    = Constant.Model.GridSearch.Tree.VERBOSE,
+        n_jobs     = 1,
+        iid        = False
+    )
+    
+    grid_search_1.fit ( x, t )
+    
+    # Report results.
+    
+    if False:
+        for e in grid_search_1.grid_scores_:
+            log ( str (e) , indent = indent+1 )
+    
+    subsample        = grid_search_1.best_params_ [ 'subsample'        ]
+    colsample_bytree = grid_search_1.best_params_ [ 'colsample_bytree' ]
+    
+    log ( 'Optimal subsample        = ' + str ( subsample                  ), indent = indent+1 )
+    log ( 'Optimal colsample_bytree = ' + str ( colsample_bytree           ), indent = indent+1 )
+    log ( 'Best Score               = ' + str ( grid_search_1.best_score_  ), indent = indent+1 )
+        
+    # update model using optimized parameters.
+    
+    model.set_params ( subsample        = subsample )
+    model.set_params ( colsample_bytree = colsample_bytree )
+    
+    # Return updated model.
+    
+    return model
+
+
+>>>>>>> dev
+
+    # Return updated model.    
+    
+    return model
+
+#-----------------------------------------------------------------------------
+<<<<<<< HEAD
 # FUNCTION: Optimize regularization alpha.
 #-----------------------------------------------------------------------------
 
@@ -579,6 +753,18 @@ def compute_estimator_count ( model, x, t, r ):
     ESTIMATOR_COUNT   = 0
     LOGLOSS_TEST_MEAN = 0
     
+=======
+# FUNCTION: Optimize tree count.
+#-----------------------------------------------------------------------------
+
+def compute_estimator_count ( model, x, t, r ):
+    
+    # Local Constants.
+    
+    ESTIMATOR_COUNT   = 0
+    LOGLOSS_TEST_MEAN = 0
+    
+>>>>>>> dev
     # Local variables.
     
     verbose_eval = 'None'
@@ -624,6 +810,7 @@ def compute_estimator_count ( model, x, t, r ):
 # FUNCTION: Optimize tree count.
 #-----------------------------------------------------------------------------
 
+<<<<<<< HEAD
 def compute_regularization_alpha ( model, x, t, reg_alpha ):
     
     # Local Constants.
@@ -685,6 +872,16 @@ def compute_gamma ( model, x, t, gamma ):
     
     # Local variables.
     
+=======
+def compute_gamma ( model, x, t, gamma ):
+    
+    # Local Constants.
+    
+    ESTIMATOR_COUNT = 0
+    
+    # Local variables.
+    
+>>>>>>> dev
     verbose_eval = 'None'
     #verbose_eval = 20
     indent = 4
@@ -962,6 +1159,7 @@ def time_to_string ( time_sample ):
 #-----------------------------------------------------------------------------
 
 def print_data_frame ( data, indent ):
+<<<<<<< HEAD
 
     # print header.
     
@@ -995,6 +1193,41 @@ def print_model_parameters ( model, indent ):
         parameter_str += str ( model.get_params() [ key ] )
         log ( parameter_str, indent = indent )
 
+=======
+
+    # print header.
+    
+    r       = data.columns[0]
+    n       = data.columns[1]
+    t       = data.columns[2]
+    logloss = data.columns[3]
+    
+    s = '{:<8}{:<8}{:<16}{:<16}'.format ( r, n, t, logloss )
+    log ( s, indent )
+    
+    # Print data.
+    
+    for row in data.values:
+        r       = row[0]
+        n       = row[1] 
+        t       = row[2]
+        logloss = row[3]
+        s = '{:<8}{:<8}{:<16}{:<16.6f}'.format ( r, int(n), t, logloss )
+        log ( s, indent )
+
+#-----------------------------------------------------------------------------
+# FUNCTION: Print model parameters.
+#-----------------------------------------------------------------------------
+
+def print_model_parameters ( model, indent ):
+
+    for key in model.get_params():                   
+        parameter_str  = '{0:.<24}'.format ( key )
+        parameter_str += ' = '
+        parameter_str += str ( model.get_params() [ key ] )
+        log ( parameter_str, indent = indent )
+
+>>>>>>> dev
 #-----------------------------------------------------------------------------
 # FUNCTION: log message to console.
 #-----------------------------------------------------------------------------
@@ -1042,6 +1275,7 @@ def main():
     
     log ( 'PROGRAM.START: ' + str ( datetime.datetime.now() ) )
     winsound.Beep ( Constant.Sound.START_FREQUENCY, Constant.Sound.START_PERIOD )
+<<<<<<< HEAD
     
     # Initialize Model.
     
@@ -1049,6 +1283,15 @@ def main():
             
     # Tain model.
     
+=======
+    
+    # Initialize Model.
+    
+    model = initialize_model ()    
+            
+    # Tain model.
+    
+>>>>>>> dev
     model = train_model ( model )
         
     # Apply model.

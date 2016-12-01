@@ -8,17 +8,17 @@ class Constant ( object ):
 
     class Text ( object):
         
-        INDENT = "-   "
+        INDENT = "|   "
         
     class Sound ( object ):
         
         EVENT_PERIOD    = 70
-        EVENT_FREQUENCY = 10000
+        EVENT_FREQUENCY = 13000
         
-        START_PERIOD    = 200
-        START_FREQUENCY = 12000
+        START_PERIOD    = 70
+        START_FREQUENCY = 10000
         
-        STOP_PERIOD    = 200
+        STOP_PERIOD    = 70
         STOP_FREQUENCY = 8000
     
     # File arguments.
@@ -53,25 +53,34 @@ class Constant ( object ):
             ID          = 't_id'
             PROBABILITY = 'probability'
 
-
-    # Log file constants.    
-    
-    class LogFile ( object ):    
-        
-        # Log file path and file name.
-        
-        LOG_FILE_PATH    = ''
-        #LOG_FILE_NAME    = "numerai.log.csv"
-        LOG_FILE_NAME    = "-"
-        LOG_FILE_ENABLED = True
-        
     # Application Controls
         
     class Application ( object ):
         
-        PARAMETER_OPTIMIZATION_ENABELED = False
-        CROSS_VALIDATION_ENABLED        = True
-        TRAINING_ENABLED                = True
+        # Parameter optimization.        
+        
+        PARAMETER_OPTIMIZATION_ENABELED    = False
+        
+        OPTIMIZE_ESTIMATOR_COUNT           = True
+        OPTIMIZE_TREE_PARAMETERS           = True
+        OPTIMIZE_REGULARIZATION_PARAMETERS = True
+        
+        # Training
+		
+        TRAINING_ENABLED  = True        
+        FIT_MODEL_ENBALED = False
+        
+        # Test
+        
+        TEST_MODEL = False
+        
+        # Reporting
+        
+        REPORT = False
+		
+        # Application
+		
+        MODEL_APPLICATION_ENABLED = False
         
     
     # Model parameters        
@@ -82,38 +91,40 @@ class Constant ( object ):
         
         #TRAINING_DATA_LIMIT = 1000 
         TRAINING_DATA_LIMIT = -1
-        METRIC              = 'logloss'
+        
+        # Cross validation.
+                
+        CROSS_VALIDATION_FOLD_COUNT = 5
+        EARLY_STOPPING_COUNT        = 50
+        METRIC                      = 'logloss'
         
         # XGBClassifier
         
-        LEARNING_RATE    = 0.001
-        N_ESTIMATORS     = 4000
+        LEARNING_RATE    = 0.07
+        N_ESTIMATORS     = 207
         MAX_DEPTH        = 1
-        MIN_CHILD_WEIGHT = 8
-        GAMMA            = 0
-        SUBSAMPLE        = 0.8
-        COLSAMPLE_BYTREE = 0.8
+        MIN_CHILD_WEIGHT = 1
+        GAMMA            = 0.0
+        SUBSAMPLE        = 0.28
+        COLSAMPLE_BYTREE = 0.05
+        REG_ALPHA        = 6.0
+        REG_LAMBDA       = 0.6
         OBJECTIVE        = 'binary:logistic'
         SCALE_POS_WEIGHT = 1
         SEED             = 1
         
-        # Model parameters.
+        # Grid Search
         
-        # learning_rate estimator_count max_depth elapsed_time numerai_logloss
-        # 0.5           5               2         00:01:38.696 0.69126
-        # 0.1           49              2         00:05:19.353 0.69133
-        # 0.05          118             2         00:10:30.526 0.69127
-        # 0.01          153             2         00:12:09.226 0.69167
-        # 0.005         843             2         01:47:05.741 0.69132
-        # 0.001         3830            2         07:23:20.548 0.69126
-        # -             -               -         -            -         
-        # 0.005         657             4         01:18:54.599 0.69120
-        # -             -               -         -            - 
-        # 0.005         898             3         01:38:12.810 0.69118
+        class GridSearch ( object ):
+            
+            class Tree ( object ):
+                
+                SCORING = 'log_loss'
+                CV      = 3           # 2 <= f <= 5
+                VERBOSE = 2           # 0 <= v <= 10
         
-        # Reporting settings.
         
-        REPORT_FIGURE_FEATURE_RANK_ENABLED = True
+        
         
      
     	
