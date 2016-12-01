@@ -65,6 +65,8 @@ def initialize_model ():
         gamma            = Constant.Model.GAMMA,
         subsample        = Constant.Model.SUBSAMPLE,
         colsample_bytree = Constant.Model.COLSAMPLE_BYTREE,
+        reg_alpha        = Constant.Model.REG_ALPHA,
+        reg_lambda       = Constant.Model.REG_LAMBDA,
         objective        = Constant.Model.OBJECTIVE,
         scale_pos_weight = Constant.Model.SCALE_POS_WEIGHT,        
         seed             = Constant.Model.SEED     
@@ -250,12 +252,28 @@ def optimize_regularization_parameters ( model, x, t ):
     indent = 3
     
     log ( 'Optimizing max depth and min child weight:', indent = indent )
-            
+       
+    # Initialize grid search parameters.
+
+    reg_alpha_locus              =  5.0
+    reg_alpha_min_index          = -3
+    reg_alpha_max_index          =  3    
+    reg_alpha_index_stride_scale =  0.5
+    reg_alpha_index_range        = range ( reg_alpha_min_index, reg_alpha_max_index + 1, 1 )
+    reg_alpha_search_domain      = [ reg_alpha_locus + ( x * reg_alpha_index_stride_scale ) for x in reg_alpha_index_range ]
+    
+    reg_lambda_locus              =  1.0
+    reg_lambda_min_index          = -5
+    reg_lambda_max_index          =  1    
+    reg_lambda_index_stride_scale =  0.1
+    reg_lambda_index_range        = range ( reg_lambda_min_index, reg_lambda_max_index + 1, 1 )
+    reg_lambda_search_domain      = [ reg_lambda_locus + ( x * reg_lambda_index_stride_scale ) for x in reg_lambda_index_range ]
+       
     # Configure grid search.
     
     parameter_search_1 = {
-        'reg_alpha'  : [ x for x in range ( 5, 15, 1 ) ],
-        'reg_lambda' : [ x for x in range ( 1, 9, 1 ) ]
+        'reg_alpha'  : reg_alpha_search_domain,
+        'reg_lambda' : reg_lambda_search_domain
     }
      
     # Perform grid search.
@@ -439,55 +457,6 @@ def optimize_gamma ( model, x, t ):
     return model
 
 #-----------------------------------------------------------------------------
-# FUNCTION: Optimize regularization alpha.
-#-----------------------------------------------------------------------------
-
-def optimize_regularization_alpha ( model, x, t ):
-    
-    # Local variables.
-    
-    indent = 3
-    
-    log ( 'Optimizing regularization alpha:', indent = indent )
-    
-    # Initialize search parameters.
-
-    reg_alpha_range  = [ 1*(10**i) for i in range (-1,5)]
-
-    data_columns = [ 'reg_alpha', 'time', 'logloss' ]        
-    result_table = pd.DataFrame ( columns = data_columns )
-    
-    index = 0
-    for reg_alpha in reg_alpha_range:
-    
-        logloss_test_mean, elapsed_time_formatted = compute_regularization_alpha ( model, x, t, reg_alpha )
-        
-        data  = [ reg_alpha, elapsed_time_formatted, logloss_test_mean ]        
-                
-        result_table.loc [ index ] = data
-        index += 1
-        
-    # Select optimal gamma
-            
-    logloss_min       = result_table [ 'logloss' ].min()
-    logloss_min_index = result_table [ 'logloss' ].argmin()
-    row               = result_table.loc [ logloss_min_index ]        
-    optimal_reg_alpha = row [ 'reg_alpha' ]
-    
-    # Set iptimal learning rate and estimator count
-    
-    model.set_params ( reg_alpha = optimal_reg_alpha )
-    
-    # Print results table.
-    
-    log ( 'Optimal regularization alpha = ' + str ( optimal_reg_alpha ), indent = indent+1 )
-    log ( 'Logloss                      = ' + str ( logloss_min       ), indent = indent+1 )
-
-    # Return updated model.    
-    
-    return model
-
-#-----------------------------------------------------------------------------
 # FUNCTION: Optimize sub sample and column sample by tree.
 #-----------------------------------------------------------------------------
 
@@ -619,59 +588,6 @@ def compute_estimator_count ( model, x, t, r ):
     log ( 'Cross validation: elapsed_time      = ' + elapsed_time_formatted,    indent = 4 )
         
     return estimator_count, logloss_test_mean, elapsed_time_formatted 
-
-#-----------------------------------------------------------------------------
-# FUNCTION: Optimize tree count.
-#-----------------------------------------------------------------------------
-
-def compute_regularization_alpha ( model, x, t, reg_alpha ):
-    
-    # Local Constants.
-    
-    ESTIMATOR_COUNT_INDEX = 0
-    
-    # Local variables.
-    
-    #verbose_eval = 'None'
-    verbose_eval = 1
-    indent       = 4
-    
-    # Set learning rate.
-    
-    model.set_params ( reg_alpha = reg_alpha )
-    
-    # Compute estimator count.
-    
-    log ( 'Computing optimal regularization_alpha.' + ' reg_alpha = ' + str ( reg_alpha ), indent = indent )
-        
-    xgb_parameters = model.get_xgb_params ()
-    xgb_data       = xgb.DMatrix          ( data = x.values, label = t.values )
-    
-    cross_validation_result = xgb.cv (
-    
-        xgb_parameters, 
-        xgb_data, 
-        num_boost_round       = model.get_params() [ 'n_estimators' ],
-        nfold                 = Constant.Model.CROSS_VALIDATION_FOLD_COUNT,
-        metrics               = Constant.Model.METRIC,
-        early_stopping_rounds = Constant.Model.EARLY_STOPPING_COUNT,
-        verbose_eval          = verbose_eval
-    )
-    
-    estimator_count   = cross_validation_result.shape [ ESTIMATOR_COUNT_INDEX ]
-    logloss_list      = np.array ( [ cross_validation_result.loc[i][0] for i in range ( 0, estimator_count ) ] )
-    logloss_test_mean = logloss_list.min()
-    
-    # Compute elepsed time for cross validation.
-    
-    time_now               = time.time()
-    elapsed_time_formatted = time_to_string ( time_now - time_event )
-    
-    log ( 'Cross validation: reg_alpha         = ' + str ( reg_alpha ),         indent = indent+1 )
-    log ( 'Cross validation: Logloss test mean = ' + str ( logloss_test_mean ), indent = indent+1 )
-    log ( 'Cross validation: elapsed_time      = ' + elapsed_time_formatted,    indent = indent+1 )
-        
-    return logloss_test_mean, elapsed_time_formatted
 
 #-----------------------------------------------------------------------------
 # FUNCTION: Optimize tree count.

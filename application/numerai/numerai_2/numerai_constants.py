@@ -59,9 +59,10 @@ class Constant ( object ):
         
         # Parameter optimization.        
         
-        PARAMETER_OPTIMIZATION_ENABELED    = True
-        OPTIMIZE_ESTIMATOR_COUNT           = False
-        OPTIMIZE_TREE_PARAMETERS           = False
+        PARAMETER_OPTIMIZATION_ENABELED    = False
+        
+        OPTIMIZE_ESTIMATOR_COUNT           = True
+        OPTIMIZE_TREE_PARAMETERS           = True
         OPTIMIZE_REGULARIZATION_PARAMETERS = True
         
         # Training
@@ -88,7 +89,7 @@ class Constant ( object ):
         
         # Training control parameters.
         
-        #TRAINING_DATA_LIMIT = 40000 
+        #TRAINING_DATA_LIMIT = 1000 
         TRAINING_DATA_LIMIT = -1
         
         # Cross validation.
@@ -106,6 +107,8 @@ class Constant ( object ):
         GAMMA            = 0.0
         SUBSAMPLE        = 0.28
         COLSAMPLE_BYTREE = 0.05
+        REG_ALPHA        = 6.0
+        REG_LAMBDA       = 0.6
         OBJECTIVE        = 'binary:logistic'
         SCALE_POS_WEIGHT = 1
         SEED             = 1
