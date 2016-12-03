@@ -648,15 +648,46 @@ def compute_gamma ( model, x, t, gamma ):
 
 def fit_model ( model, x, t ):
     
-    log ( 'Fitting model to training data.', indent = 1 )
+    # Local constants.
+    
+    INDENT = 1    
+    
+    # Fit model.
+    
+    log ( 'Fitting model to training data.', indent = INDENT )
     
     if Constant.Application.FIT_MODEL_ENBALED:
         
-        pass
+        log ( 'Training model.', indent = INDENT+1 )
         
+        # Train the model using current model parameters.
+    
+        model.fit ( x, t, eval_metric = Constant.Model.METRIC )
+            
+        # Predict training set.
+            
+        t_predictions              = model.predict       ( x )
+        t_prediction_probabilities = model.predict_proba ( x ) [ :, 1 ]
+        
+        # Print model report.
+        
+        report_training_results ( model, t, t_predictions, t_prediction_probabilities )
+        feature_rank = pd.Series ( model.booster().get_fscore()).sort_values ( ascending = False )
+        
+        # Plot feature ranking.
+        
+        if Constant.Application.PLOT_FEATURE_RANK_ENABLED:
+            
+            log ( 'REPORTING: Plotting feature rank.', indent = INDENT+1 )
+            
+            plot_feature_rank ( feature_rank )
+            
+        else:
+            log ( 'Feature rank plot: DISABLED', indent = INDENT+1 )
+		
     else:
         
-        log ( 'Fit Model: DISABLED', indent = 2 )
+        log ( 'Fit Model: DISABLED', indent = INDENT+1 )
     
     return model
 
@@ -690,7 +721,7 @@ def report_model ( model, accuracy, auc, logloss ):
     
     log ( 'Compiling training performance report.', indent = 1 )
     
-    if Constant.Application.REPORT:
+    if Constant.Application.TRAINING_REPORT_ENABLED:
         
         pass
     
@@ -739,9 +770,10 @@ def apply_model ( model ):
 def predict ( model, x ):
     
     log ( 'Applying model to production data.', indent = 1 )
+    
     winsound.Beep ( Constant.Sound.START_FREQUENCY, Constant.Sound.START_PERIOD )
     
-    y = 0
+    y = model.predict_proba ( x )   
     
     return y
 
@@ -793,50 +825,35 @@ def load_application_data ( file_name ):
     # - Input vector = x_application
     # - Output vector = y_application ...To be allocated after model execution.
     
-    x_application = application_data.drop ( Constant.Numerai.CSV.ID, axis = 1 )
+    i = application_data [ [ Constant.Numerai.CSV.ID ] ]
+    x = application_data.drop ( Constant.Numerai.CSV.ID, axis = 1 )    
     
     log ( 'Application Data: row_count = ' + str ( len ( application_data.index ) + 1 ), indent = 2 )
     
-    return x_application, application_data
+    return i, x
 
 #-----------------------------------------------------------------------------
 # Save application results.
 #-----------------------------------------------------------------------------
 
 def save_prediction_data ( file_name, i, y ):
-
-    pass
-
-#-----------------------------------------------------------------------------
-# Plot model data to console.
-#-----------------------------------------------------------------------------
-
-def console_report ( model, y, y_predictions, y_prediction_probabilities ):
     
-    FREQUENCY         = 200
-    CONSOLE_ALIGN_KEY = '{0:.<24}'
-    INDENT_HEADER     = 2
-    INDENT_DATA       = 3
+    log ( 'Saving application data: ' + '"' + file_name + '"', indent = 1 )
+    
+    # Isolate propability of 1.0.
+
+    p = pd.DataFrame ( y ) [ 1 ]
+    
+    # Create prediction data table.        
+    
+    prediction_data         = pd.concat ( [ i, p ], axis=1 )
+    prediction_data.columns = [ Constant.Numerai.CSV.ID, Constant.Numerai.CSV.PROBABILITY ]
         
-    accuracy = metrics.accuracy_score ( y.values, y_predictions              ) * 100
-    auc      = metrics.roc_auc_score  ( y,        y_prediction_probabilities )
-    logloss  = metrics.log_loss       ( y,        y_prediction_probabilities )
+    # Save the results to file.    
     
-    log ( 'Model Parameters:',   indent = INDENT_HEADER )
-    
-    for key in model.get_params():             
-        parameter_str  = CONSOLE_ALIGN_KEY.format ( key )
-        parameter_str += ' = '
-        parameter_str += str ( model.get_params() [ key ] )
-        log ( parameter_str, indent = INDENT_DATA, frequency = FREQUENCY )    
+    prediction_data.to_csv ( Constant.Numerai.DataFile.PATH + file_name, index = None )
         
-    log ( 'Training Results:', indent = INDENT_HEADER )
-    log ( CONSOLE_ALIGN_KEY.format ( 'Accuracy' ) + ' = ' + '{:.3f}'.format ( accuracy ), indent = INDENT_DATA, frequency = FREQUENCY )
-    log ( CONSOLE_ALIGN_KEY.format ( 'AUC' )      + ' = ' + '{:.6f}'.format ( auc ),      indent = INDENT_DATA, frequency = FREQUENCY )
-    log ( CONSOLE_ALIGN_KEY.format ( 'logloss' )  + ' = ' + '{:.6f}'.format ( logloss ),  indent = INDENT_DATA, frequency = FREQUENCY )
     
-
-
 #-----------------------------------------------------------------------------
 # DEBUG FUNCTION: Show sample data
 #-----------------------------------------------------------------------------
@@ -910,6 +927,27 @@ def print_model_parameters ( model, indent ):
         parameter_str += ' = '
         parameter_str += str ( model.get_params() [ key ] )
         log ( parameter_str, indent = indent )
+
+#-----------------------------------------------------------------------------
+# Plot model data to console.
+#-----------------------------------------------------------------------------
+
+def report_training_results ( model, t, t_predictions, t_prediction_probabilities ):
+    
+    CONSOLE_ALIGN_KEY = '{0:.<24}'
+    INDENT_HEADER     = 2
+    INDENT_DATA       = 3
+        
+    accuracy = metrics.accuracy_score ( t.values, t_predictions              ) * 100
+    auc      = metrics.roc_auc_score  ( t,        t_prediction_probabilities )
+    logloss  = metrics.log_loss       ( t,        t_prediction_probabilities )
+        
+    log ( 'Training Results:', indent = INDENT_HEADER )
+    log ( CONSOLE_ALIGN_KEY.format ( 'Accuracy' ) + ' = ' + '{:.3f}'.format ( accuracy ), indent = INDENT_DATA )
+    log ( CONSOLE_ALIGN_KEY.format ( 'AUC' )      + ' = ' + '{:.6f}'.format ( auc ),      indent = INDENT_DATA )
+    log ( CONSOLE_ALIGN_KEY.format ( 'logloss' )  + ' = ' + '{:.6f}'.format ( logloss ),  indent = INDENT_DATA )
+    
+
 
 #-----------------------------------------------------------------------------
 # FUNCTION: log message to console.
