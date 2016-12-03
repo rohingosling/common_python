@@ -39,46 +39,42 @@ def plot_feature_rank ( feature_rank ):
     font_size_text  = 14
     font_size_axies = 12
     color_bar       = '0.75'
+            
+    # Collect data to plot.
     
-    # Plot data.
+    features         = [ s[7:] for s in feature_rank.index ]
+    feature_count    = len ( features )
+    feature_rank_max = float ( feature_rank.values.max() )
+    feature_rank     = np.array ( feature_rank.values ) 
+    feature_rank     = feature_rank / feature_rank_max
+    y_unit           = 0.25
+    bar_width        = 0.66 * ( 1.0 / float ( feature_count ) )
     
-    if Constant.Model.REPORT_FIGURE_FEATURE_RANK_ENABLED:
-        
-        # Collect data to plot.
-        
-        features         = [ s[7:] for s in feature_rank.index ]
-        feature_count    = len ( features )
-        feature_rank_max = float ( feature_rank.values.max() )
-        feature_rank     = np.array ( feature_rank.values ) 
-        feature_rank     = feature_rank / feature_rank_max
-        y_unit           = 0.25
-        bar_width        = 0.66 * ( 1.0 / float ( feature_count ) )
-        
-        # Plot the feature importances of the forest
-        
-        plt.bar (
-            left      = np.arange ( feature_count ) / ( feature_count - 1 ),
-            height    = feature_rank,
-            width     = bar_width,
-            color     = color_bar,
-            edgecolor ='none',
-            align     = 'center'
-        )
-        
-        plt.title  ( "Feature Rank",          fontsize = font_size_text )
-        plt.ylabel ( "Relative Feature Rank", fontsize = font_size_text )
-        plt.xlabel ( "Feature",               fontsize = font_size_text )
-        plt.xticks ( np.arange ( feature_count ) / ( feature_count - 1.0 ), features, fontsize = font_size_axies, rotation='horizontal' )        
-        plt.yticks ( np.arange ( 0.0, 1.0, y_unit ), np.arange ( 0.0, 1.0, y_unit ), fontsize = font_size_axies )
-        
-        plt.xlim ( [ -bar_width, 1.0 + bar_width ] )
-        plt.ylim ( [ 0.0, 1.0 ] )
-        
-        plt.grid ( True )
-        #plt.axes().set_aspect ( 'equal' )
-        plt.tight_layout()        
-        
-        plt.show ()
+    # Plot the feature importances of the forest
+    
+    plt.bar (
+        left      = np.arange ( feature_count ) / ( feature_count - 1 ),
+        height    = feature_rank,
+        width     = bar_width,
+        color     = color_bar,
+        edgecolor ='none',
+        align     = 'center'
+    )
+    
+    plt.title  ( "Feature Rank",          fontsize = font_size_text )
+    plt.ylabel ( "Relative Feature Rank", fontsize = font_size_text )
+    plt.xlabel ( "Feature",               fontsize = font_size_text )
+    plt.xticks ( np.arange ( feature_count ) / ( feature_count - 1.0 ), features, fontsize = font_size_axies, rotation='horizontal' )        
+    plt.yticks ( np.arange ( 0.0, 1.0, y_unit ), np.arange ( 0.0, 1.0, y_unit ), fontsize = font_size_axies )
+    
+    plt.xlim ( [ -bar_width, 1.0 + bar_width ] )
+    plt.ylim ( [ 0.0, 1.0 ] )
+    
+    plt.grid ( True )
+    #plt.axes().set_aspect ( 'equal' )
+    plt.tight_layout()        
+    
+    plt.show ()
 
 # Plot data 3D.
 

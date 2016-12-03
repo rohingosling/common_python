@@ -68,7 +68,7 @@ class Constant ( object ):
         # Training
 		
         TRAINING_ENABLED  = True        
-        FIT_MODEL_ENBALED = False
+        FIT_MODEL_ENBALED = True
         
         # Test
         
@@ -76,11 +76,12 @@ class Constant ( object ):
         
         # Reporting
         
-        REPORT = False
+        TRAINING_REPORT_ENABLED   = False
+        PLOT_FEATURE_RANK_ENABLED = False
 		
         # Application
 		
-        MODEL_APPLICATION_ENABLED = False
+        MODEL_APPLICATION_ENABLED = True
         
     
     # Model parameters        
