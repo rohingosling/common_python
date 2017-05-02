@@ -90,8 +90,8 @@ class Constant ( object ):
         
         # Training control parameters.
         
-        #TRAINING_DATA_LIMIT = 1000 
-        TRAINING_DATA_LIMIT = -1
+        TRAINING_DATA_LIMIT = 1000 
+        #TRAINING_DATA_LIMIT = -1
         
         # Cross validation.
                 
