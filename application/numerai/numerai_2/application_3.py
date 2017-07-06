@@ -229,10 +229,8 @@ def load_training_data ( file_name, row_count = -1 ):
     
     # Seperate training data columns into features x, and target/s t.
     
-    index_feature_start = 1    
-    index_feature_count = 22
-    col_features        = [ Constant.Numerai.CSV.FEATURE + str ( index ) for index in range ( index_feature_start, index_feature_count ) ]
-    col_target          = Constant.Numerai.CSV.TARGET
+    col_features = [ f for f in list ( training_data ) if Constant.Numerai.CSV.FEATURE in f ]    
+    col_target   = Constant.Numerai.CSV.TARGET
     
     x = training_data [ col_features ]
     t = training_data [ col_target   ]
@@ -255,8 +253,9 @@ def load_application_data ( file_name ):
     # - Input vector = x_application
     # - Output vector = y_application ...To be allocated after model execution.
     
-    i = application_data [ [ Constant.Numerai.CSV.ID ] ]
-    x = application_data.drop ( Constant.Numerai.CSV.ID, axis = 1 )    
+    features = [ f for f in list ( application_data ) if Constant.Numerai.CSV.FEATURE in f ]
+    i        = application_data [ [ Constant.Numerai.CSV.ID ] ]
+    x        = application_data [ features ]
     
     log ( 'Application Data: row_count = ' + str ( len ( application_data.index ) + 1 ), indent = 2 )
     

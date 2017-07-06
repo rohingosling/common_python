@@ -50,7 +50,7 @@ class Constant ( object ):
         class CSV ( object ):
             FEATURE     = 'feature'
             TARGET      = 'target'
-            ID          = 't_id'
+            ID          = 'id'
             PROBABILITY = 'probability'
 
     # Application Controls
@@ -59,7 +59,7 @@ class Constant ( object ):
         
         # Parameter optimization.        
         
-        PARAMETER_OPTIMIZATION_ENABELED    = False
+        PARAMETER_OPTIMIZATION_ENABELED    = True
         
         OPTIMIZE_ESTIMATOR_COUNT           = True
         OPTIMIZE_TREE_PARAMETERS           = True
@@ -76,8 +76,8 @@ class Constant ( object ):
         
         # Reporting
         
-        TRAINING_REPORT_ENABLED   = False
-        PLOT_FEATURE_RANK_ENABLED = False
+        TRAINING_REPORT_ENABLED   = True
+        PLOT_FEATURE_RANK_ENABLED = True
 		
         # Application
 		
@@ -90,8 +90,8 @@ class Constant ( object ):
         
         # Training control parameters.
         
-        TRAINING_DATA_LIMIT = 1000 
-        #TRAINING_DATA_LIMIT = -1
+        # TRAINING_DATA_LIMIT = 1000 
+        TRAINING_DATA_LIMIT = -1        # Set to -1 to load entire file. Set to a positive n integer to load n-1 rows.
         
         # Cross validation.
                 

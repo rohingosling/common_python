@@ -1,2 +1,2 @@
-ipython application_2.py
+ipython main.py
 

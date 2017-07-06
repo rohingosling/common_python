@@ -4,6 +4,7 @@ import winsound
 import time
 
 from numerai_constants import Constant
+from sklearn           import cross_validation, metrics
 
 #/////////////////////////////////////////////////////////////////////////////
 # GLobal Variables
