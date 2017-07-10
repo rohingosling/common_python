@@ -182,45 +182,7 @@ def print_data_frame ( data, indent ):
         s = '{:<8}{:<8}{:<16}{:<16.6f}'.format ( r, int(n), t, logloss )
         log ( s, indent )
 
-#-----------------------------------------------------------------------------
-# Plot model data to console.
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Plot model data to console.
-#-----------------------------------------------------------------------------
-
-def report_training_results ( model, x, y ):
     
-    # Local constants.    
-    
-    CONSOLE_ALIGN_KEY = '{0:.<24}'
-    C_FREQUENCY       = 100
-    C_TEXT_MODEL      = '[REPORTING] '
-
-    # Compute metrics.
-
-    y_predictions              = model.predict       ( x )
-    y_prediction_probabilities = model.predict_proba ( x ) [ :, 1 ]
-        
-    accuracy = metrics.accuracy_score ( y.values, y_predictions              ) * 100
-    auc      = metrics.roc_auc_score  ( y,        y_prediction_probabilities )
-    logloss  = metrics.log_loss       ( y,        y_prediction_probabilities )
-    
-    # Compile display strings.
-    
-    message_accuracy = C_TEXT_MODEL + CONSOLE_ALIGN_KEY.format ( 'Accuracy' ) + ' = ' + '{:.3f}'.format ( accuracy )
-    message_auc      = C_TEXT_MODEL + CONSOLE_ALIGN_KEY.format ( 'AUC' )      + ' = ' + '{:.6f}'.format ( auc )
-    message_logloss  = C_TEXT_MODEL + CONSOLE_ALIGN_KEY.format ( 'logloss' )  + ' = ' + '{:.6f}'.format ( logloss )
-    
-    # Write display strings to the console.
-    
-    console_new_line()
-    
-    console_log ( str ( message_accuracy ), indent = 0, frequency = C_FREQUENCY )
-    console_log ( str ( message_auc ),      indent = 0, frequency = C_FREQUENCY )
-    console_log ( str ( message_logloss ),  indent = 0, frequency = C_FREQUENCY )
-
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------    
 # FUNCTION: sound.
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------

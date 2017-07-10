@@ -4,9 +4,11 @@
 
 # Library imports.
 
-import winsound
-import time
 import os
+import sys
+import time
+import random
+import math
 
 import pandas as pd
 import numpy  as np
@@ -18,7 +20,7 @@ from sklearn                 import metrics
 
 # Application imports.
 
-from utility import console_log, console_new_line, sound, console_report_elapsed_time, report_training_results
+from utility import console_log, console_new_line, sound, console_report_elapsed_time
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 # GLOBAL CONSTANTS
@@ -124,12 +126,14 @@ def select_features ( x ):
     return x_transformed, transformation
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
-# FUNCTION: train_model
+# FUNCTION: train_model_MLP
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def train_model ( x, y, random_state ):
-        
-    console_log ( C_TEXT_MODEL + 'Training model.', indent = 0, frequency = C_FREQUENCY_1 )
+def train_model_MLP ( x, y ):
+
+    # Compute random state.
+    
+    random_state = math.floor ( ( 2**32 - 1 ) * random.random() )
     
     # Configure model parameters.
 
@@ -150,14 +154,37 @@ def train_model ( x, y, random_state ):
     # REturn the trained model.
     
     return model
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+# FUNCTION: train_model_MLP_array
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def train_model_MLP_array ( x_train_transformed, y_train, n ):
+        
+    console_log ( C_TEXT_MODEL + 'Training models.', indent = 0, frequency = C_FREQUENCY_1 )
+    
+    # Train models
+    
+    models = []
+
+    for i in range ( 0, n ):
+
+        console_log ( C_TEXT_MODEL + 'Training model ' + str(i) + '.', indent = 0, frequency = C_FREQUENCY_1 )        
+        
+        model = train_model_MLP ( x_train_transformed, y_train )
+        models.append ( model )
+
+    # REturn the trained model.
+    
+    return models
     
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 # FUNCTION: predict_application
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def predict_application ( x, transformation, model ):
+def predict_application ( model, transformation, x ):
     
-    console_log ( C_TEXT_MODEL + 'Predicting application data.', indent = 0, frequency = C_FREQUENCY_1 )    
+    console_log ( C_TEXT_MODEL + 'Predicting targets.', indent = 0, frequency = C_FREQUENCY_1 )    
     
     # Predict application results.
     
@@ -168,6 +195,35 @@ def predict_application ( x, transformation, model ):
     
     return y
 
+    
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+# FUNCTION: predict_application
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def predict_model_array_output ( model_array, x, n ):
+    
+    # Predict application results.
+    
+    y_array = []    
+    
+    for i in range ( 0, n ):
+            
+        y = model_array [ i ].predict_proba ( x )
+        y_array.append ( y )
+        
+    # Agrigate results
+
+    y_sum = [];
+        
+    for i in range ( 0, n ):
+        
+        y_sum = np.add( y_sum, y_array [ i ] )
+        
+    y = np.divide ( y_sum, 2.0 )
+    
+    # Return predictions.    
+    
+    return y
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -187,6 +243,41 @@ def save_application_predictions ( filename, y_prediction, x_id ):
     # Save data.
     
     y_prediction_dataframe.to_csv ( filename, index = False )
+
+#-----------------------------------------------------------------------------
+# Plot model data to console.
+#-----------------------------------------------------------------------------
+
+def test_model_array ( model_array, x, y, n ):
+    
+    # Local constants.    
+    
+    CONSOLE_ALIGN_KEY = '{0:<8}'
+    C_FREQUENCY       = 100
+    C_TEXT_MODEL      = '[REPORTING] '
+
+    # Compute metrics.
+
+    y_prediction_probabilities = predict_model_array_output ( model_array, x, n )
+    
+        
+    #accuracy = metrics.accuracy_score ( y.values, y_prediction_probabilities ) * 100
+    auc      = metrics.roc_auc_score  ( y, y_prediction_probabilities )
+    logloss  = metrics.log_loss       ( y, y_prediction_probabilities )
+    
+    # Compile display strings.
+    
+    message_accuracy = C_TEXT_MODEL + CONSOLE_ALIGN_KEY.format ( 'Accuracy' ) + ' = ' + '{:.3f}'.format ( accuracy )
+    message_auc      = C_TEXT_MODEL + CONSOLE_ALIGN_KEY.format ( 'AUC' )      + ' = ' + '{:.6f}'.format ( auc )
+    message_logloss  = C_TEXT_MODEL + CONSOLE_ALIGN_KEY.format ( 'logloss' )  + ' = ' + '{:.6f}'.format ( logloss )
+    
+    # Write display strings to the console.
+    
+    console_new_line()
+    
+    console_log ( str ( message_accuracy ), indent = 0, frequency = C_FREQUENCY )
+    console_log ( str ( message_auc ),      indent = 0, frequency = C_FREQUENCY )
+    console_log ( str ( message_logloss ),  indent = 0, frequency = C_FREQUENCY )
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 # FUNCTION: main
@@ -209,35 +300,25 @@ def main ():
     file_name_application = 'numerai_tournament_data.csv'
     file_name_predictions = 'predictions.csv'
     
+    n = 3
+    
     # Train model
     
     x_train, y_train                    = load_training_data ( file_path + file_name_training )
-    x_train_transformed, transformation = select_features ( x_train )    
-    model1                              = train_model ( x_train_transformed, y_train, 1 )
-    model2                              = train_model ( x_train_transformed, y_train, 2 )
-    model3                              = train_model ( x_train_transformed, y_train, 3 )
-    model4                              = train_model ( x_train_transformed, y_train, 4 )
-    model5                              = train_model ( x_train_transformed, y_train, 5 )
-        
-    # Report results.
+    x_train_transformed, transformation = select_features ( x_train )
+    model_array                         = train_model_MLP_array ( x_train_transformed, y_train, n )
+            
+    # Test model
     
-    report_training_results ( model1, x_train_transformed, y_train )
-    report_training_results ( model2, x_train_transformed, y_train )
-    report_training_results ( model3, x_train_transformed, y_train )
-    report_training_results ( model4, x_train_transformed, y_train )
-    report_training_results ( model5, x_train_transformed, y_train )
+    test_model_array ( model_array, x_train_transformed, y_train, n )    
         
     # Load application data.
     
-    x_id, x_application = load_application_data ( file_path + file_name_application )
-    y_prediction1        = predict_application ( x_application, transformation, model1 )
-    y_prediction2        = predict_application ( x_application, transformation, model2 )
-    y_prediction3        = predict_application ( x_application, transformation, model3 )
-    y_prediction4        = predict_application ( x_application, transformation, model4 )
-    y_prediction5        = predict_application ( x_application, transformation, model5 )
-    
-    y_prediction = ( y_prediction1 + y_prediction2 + y_prediction3 + y_prediction4 + y_prediction5 ) / 5.0            
-    
+    x_id, x_application = load_application_data ( file_path + file_name_application )    
+    x_transformed       = transformation.transform ( x_application )
+    y_prediction        = predict_model_array_output ( model_array, x_transformed, n )
+    #y_prediction        = predict_application   ( model_array, transformation, x_application )
+        
     # Save prediction data.
 
     save_application_predictions ( file_path + file_name_predictions, y_prediction, x_id )
