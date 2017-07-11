@@ -13,12 +13,12 @@ from solution_3_neural_network_array import Application
 
 def initialize ():
     
-    console_log ( Constant.Text.SYSTEM + 'Initialize Program.', lines_before = 1, frequency = Constant.Sound.LOG_FREQUENCY )
+    console_log ( Constant.Text.SYSTEM + 'Initialize Program.', lines_before = 1, frequency = Constant.Sound.START_FREQUENCY )
     
     # Disable warnings.
     # - We do this specificaly to disable TensorFlow warnings.
     
-    if Constant.System.TENSOR_FLOW_WARNINGS_ENABLED == False:
+    if Constant.System.SUPPRESS_TENSOR_FLOW_WARNINGS:
         os.environ [ 'TF_CPP_MIN_LOG_LEVEL' ] = '2'
     
     # Initialize random number generaor.

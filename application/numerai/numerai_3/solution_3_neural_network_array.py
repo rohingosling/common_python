@@ -33,11 +33,6 @@ class Application:
         self.file_name_training    = self.file_path + Constant.Numerai.File.TRAINING
         self.file_name_live        = self.file_path + Constant.Numerai.File.LIVE
         self.file_name_predictions = self.file_path + Constant.Numerai.File.PREDICTION
-        
-        # Model pipeline nodes.
-        
-        self.transformation_pca = None
-        self.model_mlp          = None
     
     #--------------------------------------------------------------------------
     # Function: run

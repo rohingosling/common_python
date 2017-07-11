@@ -7,7 +7,7 @@ class Constant ( object ):
     # System constants.
 
     class System ( object ):
-        TENSOR_FLOW_WARNINGS_ENABLED = False
+        SUPPRESS_TENSOR_FLOW_WARNINGS = False
 
     # Text formating constans.
 
