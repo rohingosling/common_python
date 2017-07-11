@@ -48,7 +48,7 @@ class Application:
         
         x_train, y_train                    = self.load_training_data ( self.file_name_training )
         transformation, x_train_transformed = self.select_features    ( x_train )
-        model                               = self.train              ( x_train_transformed, y_train )        
+        model                               = self.train              ( x_train, y_train )        
         
         # Apply model
         
@@ -60,7 +60,7 @@ class Application:
         
         console_log ( Constant.Text.APPLICATION + 'Application.Stop.', indent = 0, frequency = Constant.Sound.LOG_FREQUENCY )
         
-        self.report_model ( model, transformation, x_train_transformed, y_train )
+        self.report_model ( model, transformation, x_train, y_train )
 
     #--------------------------------------------------------------------------
     # Function: train
@@ -131,7 +131,7 @@ class Application:
         # Compute model.
     
         x_transformed = transformation.transform ( x )
-        y             = model.predict_proba      ( x_transformed )
+        y             = model.predict_proba      ( x )
         
         # Return to caller.
         
