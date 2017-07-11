@@ -48,7 +48,7 @@ class Application:
         
         x_train, y_train                    = self.load_training_data ( self.file_name_training )
         transformation, x_train_transformed = self.select_features    ( x_train )
-        model                               = self.train              ( x_train, y_train )        
+        model                               = self.train              ( x_train_transformed, y_train )        
         
         # Apply model
         
@@ -60,7 +60,7 @@ class Application:
         
         console_log ( Constant.Text.APPLICATION + 'Application.Stop.', indent = 0, frequency = Constant.Sound.LOG_FREQUENCY )
         
-        self.report_model ( model, transformation, x_train, y_train )
+        self.report_model ( model, transformation, x_train_transformed, y_train )
 
     #--------------------------------------------------------------------------
     # Function: train
@@ -131,7 +131,7 @@ class Application:
         # Compute model.
     
         x_transformed = transformation.transform ( x )
-        y             = model.predict_proba      ( x )
+        y             = model.predict_proba      ( x_transformed )
         
         # Return to caller.
         
@@ -256,7 +256,7 @@ class Application:
         accuracy = metrics.accuracy_score ( y.values, y_predictions              ) * 100
         auc      = metrics.roc_auc_score  ( y,        y_prediction_probabilities )
         logloss  = metrics.log_loss       ( y,        y_prediction_probabilities )
-                
+        
         print ( CONSOLE_ALIGN_KEY.format ( '- Accuracy' ) + ' = ' + '{:.3f}'.format ( accuracy ) )
         print ( CONSOLE_ALIGN_KEY.format ( '- AUC' )      + ' = ' + '{:.6f}'.format ( auc ) )
         print ( CONSOLE_ALIGN_KEY.format ( '- logloss' )  + ' = ' + '{:.6f}'.format ( logloss ) )
