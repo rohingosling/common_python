@@ -1,3 +1,4 @@
+echo off
 git status
 git add *
 git status
@@ -6,3 +7,5 @@ git status
 git push origin master
 git status
 git branch
+echo on
+
