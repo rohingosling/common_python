@@ -1,14 +1,29 @@
-import winsound
-import datetime
+import os
+import time
 
-from numerai_constants import Constant
-from application_3     import initialize_model
-from application_3     import load_training_data
-from application_3     import train_model
-from application_3     import apply_model
-from optimize_model    import optimize_model_parameters
-from utility           import log
+import numpy as np
 
+from numerai_constants               import Constant
+from utility                         import console_log, console_new_line, console_report_elapsed_time
+from solution_3_neural_network_array import Application
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+# FUNCTION: initialize application
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def initialize ():
+    
+    console_log ( Constant.Text.SYSTEM + 'Initialize Program.', lines_before = 1, frequency = Constant.Sound.LOG_FREQUENCY )
+    
+    # Disable warnings.
+    # - We do this specificaly to disable TensorFlow warnings.
+    
+    if Constant.System.TENSOR_FLOW_WARNINGS_ENABLED == False:
+        os.environ [ 'TF_CPP_MIN_LOG_LEVEL' ] = '2'
+    
+    # Initialize random number generaor.
+    
+    np.random.seed ( 0 )
 
 #/////////////////////////////////////////////////////////////////////////////
 # Program entry point.
@@ -16,36 +31,30 @@ from utility           import log
 
 def main():
     
-    # Initialize application.    
+    # Initialize program.
     
-    log ( 'PROGRAM.START: ' + str ( datetime.datetime.now() ) )
-    winsound.Beep ( Constant.Sound.START_FREQUENCY, Constant.Sound.START_PERIOD )
+    initialize ();  
 
-    # Initialize loal variables.
+    # Srart clock.    
     
-    training_file_name    = Constant.Numerai.DataFile.PATH + Constant.Numerai.DataFile.TRAINING    
-    row_count             = Constant.Model.TRAINING_DATA_LIMIT
-        
-    # Train and optimize model.
+    time_start = time.time()
+
+    # Run application
     
-    model = initialize_model ()    
-    x, t  = load_training_data        ( training_file_name, row_count )     
-    model = optimize_model_parameters ( model, x, t )
-    model = train_model               ( model, x, t )
+    application = Application ()
+    application.run()
+      
+    # Stop clock.
     
-    # Apply model.    
+    time_stop    = time.time()
+    elapsed_time = time_stop - time_start
+   
+    # Report time..
     
-    apply_model ( model )
+    console_new_line ()
+    console_report_elapsed_time ( time_start, time_stop, elapsed_time )
     
-    # Shut down application.
-        
-    log ( 'PROGRAM.STOP: ' + str ( datetime.datetime.now() ) )
-    print ('')
-    winsound.Beep ( Constant.Sound.STOP_FREQUENCY, Constant.Sound.STOP_PERIOD )    
-    
-    #debug_show_sample_data ( training_data, cols_features, col_target, row_count = 3, precision = 16 )
 
 if __name__ == "__main__":
 
      main()
-
