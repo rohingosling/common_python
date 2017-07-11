@@ -1,3 +1,6 @@
+sound 200 50
+sound 400 50
+sound 800 200
 cls
 echo off
 sound 12000 50
@@ -50,3 +53,7 @@ echo -
 git branch
 sound 12000 50
 echo on
+sound 400 50
+sound 400 50
+sound 400 200
+
