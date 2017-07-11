@@ -1,4 +1,5 @@
 echo off
+cls
 git status
 git add *
 git status
