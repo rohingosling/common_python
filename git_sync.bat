@@ -1,7 +1,3 @@
-sound 8000 50
-sound 8000 50
-sound 8000 50
-sound 10000 200
 cls
 echo off
 sound 8000 50
@@ -57,10 +53,10 @@ echo - Active branch.
 echo -
 git branch
 sound 12000 50
-sound 200 50
-sound 200 50
-sound 200 50
-sound 200 200
+sound 500 50
+sound 500 50
+sound 500 50
+sound 600 200
 echo on
 
 
