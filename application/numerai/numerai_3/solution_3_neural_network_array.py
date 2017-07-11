@@ -52,13 +52,15 @@ class Application:
         
         # Apply model
         
-        i, x = self.load_live_data ( self.file_name_live )
-        y    = self.compute_model  ( model, transformation, x )
-        self.save_live_data ( self.file_name_predictions, i, y )
+        id_live, x_live = self.load_live_data ( self.file_name_live )
+        y_live    = self.compute_model  ( model, transformation, x_live )
+        self.save_live_data ( self.file_name_predictions, id_live, y_live )
                 
         # Application end.
         
         console_log ( Constant.Text.APPLICATION + 'Application.Stop.', indent = 0, frequency = Constant.Sound.LOG_FREQUENCY )
+        
+        self.report_model ( model, transformation, x_train_transformed, y_train )
 
     #--------------------------------------------------------------------------
     # Function: train
@@ -218,4 +220,60 @@ class Application:
         # Return o caller.
         
         return i, x
+    #-----------------------------------------------------------------------------
+    # FUNCTION: Report results.
+    #-----------------------------------------------------------------------------
+    
+    def report_model ( self, model, transformation, x, y ):
+    
+        print ( '' )
+        print ( 'Learning Algorythm: ' + model.__class__.__name__ )
+        self.print_model_parameters ( model )
         
+        print ( '' )
+        print ( 'Dimentionality Reduction Algorythm: ' + transformation.__class__.__name__ )
+        self.print_model_parameters ( transformation )
+        
+        print ( '' )
+        print ( 'Model Test Performance:' )
+        self.report_model_results ( model, x, y )
+        
+    #-----------------------------------------------------------------------------
+    # Display model test performance.
+    #-----------------------------------------------------------------------------
+    
+    def report_model_results ( self, model, x, y ):
+        
+        CONSOLE_ALIGN_KEY = '{0:.<24}'
+        
+        # Test model.
+        
+        y_predictions              = model.predict       ( x )
+        y_prediction_probabilities = model.predict_proba ( x ) [ :, 1 ]
+        
+        # Display test results.
+            
+        accuracy = metrics.accuracy_score ( y.values, y_predictions              ) * 100
+        auc      = metrics.roc_auc_score  ( y,        y_prediction_probabilities )
+        logloss  = metrics.log_loss       ( y,        y_prediction_probabilities )
+                
+        print ( CONSOLE_ALIGN_KEY.format ( '- Accuracy' ) + ' = ' + '{:.3f}'.format ( accuracy ) )
+        print ( CONSOLE_ALIGN_KEY.format ( '- AUC' )      + ' = ' + '{:.6f}'.format ( auc ) )
+        print ( CONSOLE_ALIGN_KEY.format ( '- logloss' )  + ' = ' + '{:.6f}'.format ( logloss ) )
+    
+    #-----------------------------------------------------------------------------
+    # FUNCTION: Print model parameters.
+    #-----------------------------------------------------------------------------
+    
+    def print_model_parameters ( self, model ):
+    
+        indent = '- '
+        
+        for key in model.get_params():  
+                     
+            parameter_str =  indent
+            parameter_str += '{0:.<24}'.format ( key )
+            parameter_str += ' = '
+            parameter_str += str ( model.get_params() [ key ] )
+                    
+            print ( parameter_str )
