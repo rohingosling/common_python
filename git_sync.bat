@@ -1,4 +1,3 @@
-echo off
 cls
 git status
 git add *
@@ -8,5 +7,3 @@ git status
 git push origin master
 git status
 git branch
-echo on
-
