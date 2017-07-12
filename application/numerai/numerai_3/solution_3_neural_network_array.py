@@ -46,14 +46,15 @@ class Application:
         
         # Train model.
         
-        x_train, y_train                    = self.load_training_data ( self.file_name_training )
-        transformation, x_train_transformed = self.select_features    ( x_train )
-        model                               = self.train              ( x_train_transformed, y_train )        
+        x_train, y_train                    = self.load_training_data   ( self.file_name_training )
+        x_validation, y_validation          = self.load_validation_data ( self.file_name_training )
+        transformation, x_train_transformed = self.select_features      ( x_train )
+        model                               = self.train                ( x_train_transformed, y_train )        
         
         # Apply model
         
         id_live, x_live = self.load_live_data ( self.file_name_live )
-        y_live    = self.compute_model  ( model, transformation, x_live )
+        y_live          = self.compute_model  ( model, transformation, x_live )
         self.save_live_data ( self.file_name_predictions, id_live, y_live )
                 
         # Application end.
@@ -189,6 +190,8 @@ class Application:
     def load_validation_data ( self, file_name ):
         
         console_log ( Constant.Text.MODEL + 'Loading validation data, "' + file_name + '".', indent = Constant.Text.INDENT, frequency = Constant.Sound.LOG_FREQUENCY )
+        
+        return [], []
 
     #--------------------------------------------------------------------------
     # Function: load_test_data
