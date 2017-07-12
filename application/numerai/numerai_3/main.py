@@ -36,7 +36,7 @@ def main():
     initialize ();  
 
     # Srart clock.    
-    
+
     time_start = time.time()
 
     # Run application
