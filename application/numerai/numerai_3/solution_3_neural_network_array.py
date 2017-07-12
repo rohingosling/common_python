@@ -3,8 +3,8 @@
 import math
 import random
 
-import numpy  as np
-import pandas as pd
+import numpy   as np
+import pandas  as pd
 
 from sklearn.decomposition   import PCA
 from sklearn.neural_network  import MLPClassifier
@@ -177,7 +177,7 @@ class Application:
         x = training_data [ features ]
         y = training_data [ Constant.Numerai.CSV.TARGET ]
         
-        # return to caller
+        # return to caller        
         
         return x, y
 
